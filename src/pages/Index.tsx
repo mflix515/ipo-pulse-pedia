@@ -1,338 +1,245 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { TrendingUp, Calendar, Calculator, BarChart3, ArrowRight, Star } from 'lucide-react';
+
+import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import TopHeaderSlider from '@/components/TopHeaderSlider';
-import EnhancedIPOCard from '@/components/EnhancedIPOCard';
 import JoinUsSection from '@/components/JoinUsSection';
 import AdPlacement from '@/components/AdPlacement';
+import SuccessStoriesSlider from '@/components/SuccessStoriesSlider';
+import EnhancedIPOCard from '@/components/EnhancedIPOCard';
+import LoadingSpinner from '@/components/LoadingSpinner';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Button } from '@/components/ui/button';
+import { Filter, SortAsc } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+
+interface IPO {
+  id: string;
+  name: string;
+  type: 'mainboard' | 'sme';
+  status: 'upcoming' | 'open' | 'closed' | 'listed';
+  price_range: string | null;
+  lot_size: number | null;
+  min_investment: string | null;
+  issue_size: string | null;
+  open_date: string | null;
+  close_date: string | null;
+  listing_date: string | null;
+  gmp: string | null;
+  profit_per_lot: string | null;
+  category: string | null;
+  subscription_rate: string | null;
+  listing_price: string | null;
+  current_price: string | null;
+  change_percentage: string | null;
+}
 
 const Index = () => {
+  const [searchParams] = useSearchParams();
+  const [ipos, setIpos] = useState<IPO[]>([]);
+  const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('upcoming');
+  const [selectedType, setSelectedType] = useState<'all' | 'mainboard' | 'sme'>('all');
+  const [pageLoading, setPageLoading] = useState(false);
 
-  // Mock data for IPOs
-  const ipoData = {
-    upcoming: [
-      {
-        id: 1,
-        company: 'TechCorp Limited',
-        openDate: '2024-06-15',
-        closeDate: '2024-06-17',
-        priceRange: '₹250-280',
-        lotSize: 50,
-        minInvestment: '₹12,500',
-        issueSize: '₹2,500 Cr',
-        gmp: '+₹45',
-        profitPerLot: '₹2,250',
-        category: 'Technology'
-      },
-      {
-        id: 2,
-        company: 'Green Energy Solutions',
-        openDate: '2024-06-20',
-        closeDate: '2024-06-22',
-        priceRange: '₹180-200',
-        lotSize: 75,
-        minInvestment: '₹13,500',
-        issueSize: '₹1,800 Cr',
-        gmp: '+₹25',
-        profitPerLot: '₹1,875',
-        category: 'Energy'
-      }
-    ],
-    open: [
-      {
-        id: 3,
-        company: 'FinServ Bank',
-        openDate: '2024-06-01',
-        closeDate: '2024-06-03',
-        priceRange: '₹350-380',
-        lotSize: 40,
-        minInvestment: '₹14,000',
-        issueSize: '₹5,200 Cr',
-        gmp: '+₹65',
-        profitPerLot: '₹2,600',
-        category: 'Banking',
-        subscriptionRate: '4.2x'
-      }
-    ],
-    closed: [
-      {
-        id: 4,
-        company: 'Pharma Innovations',
-        openDate: '2024-05-25',
-        closeDate: '2024-05-27',
-        priceRange: '₹220-240',
-        lotSize: 60,
-        minInvestment: '₹13,200',
-        issueSize: '₹1,500 Cr',
-        listingDate: '2024-06-05',
-        category: 'Healthcare'
-      }
-    ],
-    listed: [
-      {
-        id: 5,
-        company: 'RetailMart Corp',
-        listingPrice: '₹185',
-        currentPrice: '₹245',
-        change: '+32.4%',
-        category: 'Retail'
-      }
-    ]
+  useEffect(() => {
+    const type = searchParams.get('type');
+    const status = searchParams.get('status');
+    
+    if (type && ['mainboard', 'sme'].includes(type)) {
+      setSelectedType(type as 'mainboard' | 'sme');
+    }
+    
+    if (status && ['upcoming', 'open', 'closed', 'listed'].includes(status)) {
+      setActiveTab(status);
+    }
+
+    fetchIPOs();
+  }, [searchParams]);
+
+  const fetchIPOs = async () => {
+    try {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('ipos')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setIpos(data || []);
+    } catch (error) {
+      console.error('Error fetching IPOs:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const features = [
-    {
-      icon: Calendar,
-      title: 'IPO Calendar',
-      description: 'Track all upcoming and ongoing IPOs with detailed timelines',
-      link: '/calendar'
-    },
-    {
-      icon: Calculator,
-      title: 'P&L Calculator',
-      description: 'Calculate your potential profits and losses with GMP data',
-      link: '/calculator'
-    },
-    {
-      icon: BarChart3,
-      title: 'Broker Comparison',
-      description: 'Compare features and ratings of top stock brokers',
-      link: '/broker-comparison'
-    },
-    {
-      icon: TrendingUp,
-      title: 'Market Analysis',
-      description: 'Get insights and analysis on IPO performance',
-      link: '/blog'
-    }
-  ];
+  const filteredIPOs = ipos.filter(ipo => {
+    const matchesStatus = ipo.status === activeTab;
+    const matchesType = selectedType === 'all' || ipo.type === selectedType;
+    return matchesStatus && matchesType;
+  });
 
-  const renderIPOCard = (ipo: any, type: string) => (
-    <Card key={ipo.id} className="hover:shadow-lg transition-shadow">
-      <CardHeader className="pb-3">
-        <div className="flex justify-between items-start">
-          <div>
-            <CardTitle className="text-lg">{ipo.company}</CardTitle>
-            <Badge variant="secondary" className="mt-1">{ipo.category}</Badge>
-          </div>
-          {ipo.gmp && (
-            <Badge variant="default" className="bg-green-100 text-green-800">
-              GMP {ipo.gmp}
-            </Badge>
-          )}
-        </div>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-2 text-sm">
-          {type === 'upcoming' || type === 'open' ? (
-            <>
-              <div className="flex justify-between">
-                <span className="text-gray-600">Dates:</span>
-                <span>{ipo.openDate} to {ipo.closeDate}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">Price Range:</span>
-                <span className="font-medium">{ipo.priceRange}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">Min Investment:</span>
-                <span>{ipo.minInvestment}</span>
-              </div>
-              {ipo.gmp && (
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Profit/Lot:</span>
-                  <span className="text-green-600 font-medium">{ipo.profitPerLot}</span>
-                </div>
-              )}
-              {ipo.subscriptionRate && (
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Subscription:</span>
-                  <span className="font-medium">{ipo.subscriptionRate}</span>
-                </div>
-              )}
-            </>
-          ) : type === 'closed' ? (
-            <>
-              <div className="flex justify-between">
-                <span className="text-gray-600">Issue Dates:</span>
-                <span>{ipo.openDate} to {ipo.closeDate}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">Listing Date:</span>
-                <span>{ipo.listingDate}</span>
-              </div>
-              <Button variant="outline" size="sm" className="w-full mt-3">
-                Check Allotment Status
-              </Button>
-            </>
-          ) : (
-            <>
-              <div className="flex justify-between">
-                <span className="text-gray-600">Listing Price:</span>
-                <span>{ipo.listingPrice}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">Current Price:</span>
-                <span className="font-medium">{ipo.currentPrice}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">Change:</span>
-                <span className="text-green-600 font-medium">{ipo.change}</span>
-              </div>
-            </>
-          )}
-        </div>
-        <Link to={`/ipo/${ipo.id}`}>
-          <Button className="w-full mt-4" variant="outline">
-            View Details <ArrowRight className="ml-2 h-4 w-4" />
-          </Button>
-        </Link>
-      </CardContent>
-    </Card>
-  );
+  const handleTabChange = (value: string) => {
+    setPageLoading(true);
+    setTimeout(() => {
+      setActiveTab(value);
+      setPageLoading(false);
+    }, 500);
+  };
+
+  if (loading) {
+    return <LoadingSpinner />;
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {pageLoading && <LoadingSpinner />}
       <TopHeaderSlider />
       <Navbar />
       
-      {/* Hero Section */}
-      <section className="bg-gradient-to-r from-green-600 to-green-800 text-white py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <h1 className="text-4xl md:text-6xl font-bold mb-6 animate-fade-in">
-              Welcome to IPO-Pedia
-            </h1>
-            <p className="text-xl md:text-2xl mb-8 text-green-100">
-              Your Complete Guide to IPO Investments
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link to="/calculator">
-                <Button size="lg" variant="secondary" className="text-green-600 hover:bg-white">
-                  Try P&L Calculator
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Hero Section with Ads */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-8">
+          {/* Left Sidebar Ad */}
+          <div className="hidden lg:block lg:col-span-2">
+            <AdPlacement size="sidebar" position="left-sidebar" />
+          </div>
+
+          {/* Main Content */}
+          <div className="lg:col-span-8">
+            <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
+              <h1 className="text-3xl font-bold text-gray-900 mb-4">
+                Welcome to IPO-Pedia
+              </h1>
+              <p className="text-gray-600 mb-6">
+                Your comprehensive platform for IPO information, analysis, and investment guidance.
+                Track Mainboard and SME IPOs with real-time updates and expert insights.
+              </p>
+              
+              {/* Type Filter */}
+              <div className="flex flex-wrap gap-2 mb-6">
+                <Button
+                  variant={selectedType === 'all' ? 'default' : 'outline'}
+                  onClick={() => setSelectedType('all')}
+                  className="bg-green-600 hover:bg-green-700"
+                >
+                  All IPOs
                 </Button>
-              </Link>
-              <Link to="/calendar">
-                <Button size="lg" variant="outline" className="text-white border-white hover:bg-white hover:text-green-600">
-                  View IPO Calendar
+                <Button
+                  variant={selectedType === 'mainboard' ? 'default' : 'outline'}
+                  onClick={() => setSelectedType('mainboard')}
+                  className="bg-blue-600 hover:bg-blue-700"
+                >
+                  Mainboard IPO
                 </Button>
-              </Link>
+                <Button
+                  variant={selectedType === 'sme' ? 'default' : 'outline'}
+                  onClick={() => setSelectedType('sme')}
+                  className="bg-purple-600 hover:bg-purple-700"
+                >
+                  SME IPO
+                </Button>
+              </div>
+
+              {/* Banner Ad */}
+              <AdPlacement size="banner" position="hero-banner" className="mb-6" />
+
+              {/* IPO Tabs */}
+              <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
+                <TabsList className="grid w-full grid-cols-4">
+                  <TabsTrigger value="upcoming">Upcoming</TabsTrigger>
+                  <TabsTrigger value="open">Open</TabsTrigger>
+                  <TabsTrigger value="closed">Closed</TabsTrigger>
+                  <TabsTrigger value="listed">Listed</TabsTrigger>
+                </TabsList>
+
+                {['upcoming', 'open', 'closed', 'listed'].map((status) => (
+                  <TabsContent key={status} value={status} className="mt-6">
+                    <div className="flex justify-between items-center mb-4">
+                      <h2 className="text-xl font-semibold capitalize">
+                        {status} IPOs {selectedType !== 'all' && `(${selectedType.toUpperCase()})`}
+                      </h2>
+                      <div className="flex space-x-2">
+                        <Button variant="outline" size="sm">
+                          <Filter className="h-4 w-4 mr-2" />
+                          Filter
+                        </Button>
+                        <Button variant="outline" size="sm">
+                          <SortAsc className="h-4 w-4 mr-2" />
+                          Sort
+                        </Button>
+                      </div>
+                    </div>
+
+                    {filteredIPOs.length === 0 ? (
+                      <div className="text-center py-12">
+                        <p className="text-gray-500">No {status} IPOs found.</p>
+                      </div>
+                    ) : (
+                      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                        {filteredIPOs.map((ipo) => (
+                          <EnhancedIPOCard
+                            key={ipo.id}
+                            ipo={{
+                              id: parseInt(ipo.id),
+                              company: ipo.name,
+                              openDate: ipo.open_date || undefined,
+                              closeDate: ipo.close_date || undefined,
+                              priceRange: ipo.price_range || undefined,
+                              lotSize: ipo.lot_size || undefined,
+                              minInvestment: ipo.min_investment || undefined,
+                              issueSize: ipo.issue_size || undefined,
+                              gmp: ipo.gmp || undefined,
+                              profitPerLot: ipo.profit_per_lot || undefined,
+                              category: ipo.category || ipo.type,
+                              subscriptionRate: ipo.subscription_rate || undefined,
+                              listingPrice: ipo.listing_price || undefined,
+                              currentPrice: ipo.current_price || undefined,
+                              change: ipo.change_percentage || undefined,
+                              listingDate: ipo.listing_date || undefined,
+                            }}
+                            type={status as 'upcoming' | 'open' | 'closed' | 'listed'}
+                          />
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Ad after every 6 IPOs */}
+                    {filteredIPOs.length > 6 && (
+                      <div className="mt-8">
+                        <AdPlacement size="banner" position={`${status}-content`} />
+                      </div>
+                    )}
+                  </TabsContent>
+                ))}
+              </Tabs>
+            </div>
+
+            {/* Success Stories Section */}
+            <div className="mb-8">
+              <SuccessStoriesSlider />
+            </div>
+
+            {/* Mobile Banner Ad */}
+            <div className="lg:hidden mb-6">
+              <AdPlacement size="mobile" position="mobile-banner" />
+            </div>
+          </div>
+
+          {/* Right Sidebar Ad */}
+          <div className="hidden lg:block lg:col-span-2">
+            <div className="space-y-6">
+              <AdPlacement size="sidebar" position="right-sidebar-1" />
+              <AdPlacement size="square" position="right-sidebar-2" />
             </div>
           </div>
         </div>
-      </section>
 
-      {/* Ad Banner */}
-      <div className="bg-white py-4">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <AdPlacement size="banner" position="hero-bottom" />
-        </div>
+        {/* Join Us Section */}
+        <JoinUsSection />
       </div>
-
-      {/* Features Section */}
-      <section className="py-16 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl font-bold text-center mb-12">Powerful IPO Tools</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {features.map((feature, index) => (
-              <Link key={index} to={feature.link}>
-                <Card className="text-center hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 cursor-pointer">
-                  <CardHeader>
-                    <div className="mx-auto bg-green-100 w-12 h-12 rounded-lg flex items-center justify-center mb-4">
-                      <feature.icon className="h-6 w-6 text-green-600" />
-                    </div>
-                    <CardTitle className="text-green-800">{feature.title}</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-gray-600">{feature.description}</p>
-                  </CardContent>
-                </Card>
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* IPO Listings */}
-      <section className="py-16 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl font-bold text-center mb-12">IPO Market Overview</h2>
-          
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-4">
-              <TabsTrigger value="upcoming" className="data-[state=active]:bg-green-600 data-[state=active]:text-white">Upcoming</TabsTrigger>
-              <TabsTrigger value="open" className="data-[state=active]:bg-green-600 data-[state=active]:text-white">Open</TabsTrigger>
-              <TabsTrigger value="closed" className="data-[state=active]:bg-green-600 data-[state=active]:text-white">Closed</TabsTrigger>
-              <TabsTrigger value="listed" className="data-[state=active]:bg-green-600 data-[state=active]:text-white">Listed</TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="upcoming" className="mt-8">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {ipoData.upcoming.map(ipo => (
-                  <EnhancedIPOCard key={ipo.id} ipo={ipo} type="upcoming" />
-                ))}
-              </div>
-            </TabsContent>
-            
-            <TabsContent value="open" className="mt-8">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {ipoData.open.map(ipo => (
-                  <EnhancedIPOCard key={ipo.id} ipo={ipo} type="open" />
-                ))}
-              </div>
-            </TabsContent>
-            
-            <TabsContent value="closed" className="mt-8">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {ipoData.closed.map(ipo => (
-                  <EnhancedIPOCard key={ipo.id} ipo={ipo} type="closed" />
-                ))}
-              </div>
-            </TabsContent>
-            
-            <TabsContent value="listed" className="mt-8">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {ipoData.listed.map(ipo => (
-                  <EnhancedIPOCard key={ipo.id} ipo={ipo} type="listed" />
-                ))}
-              </div>
-            </TabsContent>
-          </Tabs>
-        </div>
-      </section>
-
-      {/* Ad Section */}
-      <div className="bg-white py-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <AdPlacement size="banner" position="mid-content" />
-        </div>
-      </div>
-
-      {/* Join Us Section */}
-      <JoinUsSection />
-
-      {/* Newsletter Signup */}
-      <section className="py-16 bg-green-50">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl font-bold mb-4 text-green-800">Stay Updated with IPO Alerts</h2>
-          <p className="text-gray-600 mb-8">Get the latest IPO news and updates directly in your inbox</p>
-          <div className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
-            <input
-              type="email"
-              placeholder="Enter your email"
-              className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-            />
-            <Button className="bg-green-600 hover:bg-green-700">Subscribe</Button>
-          </div>
-        </div>
-      </section>
 
       <Footer />
     </div>

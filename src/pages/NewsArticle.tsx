@@ -7,43 +7,42 @@ import LoadingSpinner from '@/components/LoadingSpinner';
 import AdPlacement from '@/components/AdPlacement';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, CalendarDays, User, Clock, Share2 } from 'lucide-react';
+import { ArrowLeft, CalendarDays, User, Share2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 
-interface BlogPost {
+interface NewsItem {
   id: string;
   title: string;
   content: string;
   excerpt: string | null;
   author: string;
   category: string;
-  read_time: string | null;
   published_at: string;
 }
 
-const BlogPost = () => {
+const NewsArticle = () => {
   const { id } = useParams();
-  const [post, setPost] = useState<BlogPost | null>(null);
+  const [article, setArticle] = useState<NewsItem | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (id) {
-      fetchPost();
+      fetchArticle();
     }
   }, [id]);
 
-  const fetchPost = async () => {
+  const fetchArticle = async () => {
     try {
       const { data, error } = await supabase
-        .from('blogs')
+        .from('news')
         .select('*')
         .eq('id', id)
         .single();
 
       if (error) throw error;
-      setPost(data);
+      setArticle(data);
     } catch (error) {
-      console.error('Error fetching blog post:', error);
+      console.error('Error fetching article:', error);
     } finally {
       setLoading(false);
     }
@@ -52,8 +51,8 @@ const BlogPost = () => {
   const handleShare = () => {
     if (navigator.share) {
       navigator.share({
-        title: post?.title,
-        text: post?.excerpt || '',
+        title: article?.title,
+        text: article?.excerpt || '',
         url: window.location.href,
       });
     } else {
@@ -66,17 +65,17 @@ const BlogPost = () => {
     return <LoadingSpinner />;
   }
 
-  if (!post) {
+  if (!article) {
     return (
       <div className="min-h-screen bg-gray-50">
         <Navbar />
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="text-center">
-            <h1 className="text-2xl font-bold text-gray-900 mb-4">Blog Post Not Found</h1>
+            <h1 className="text-2xl font-bold text-gray-900 mb-4">Article Not Found</h1>
             <Button asChild>
-              <Link to="/blog">
+              <Link to="/news">
                 <ArrowLeft className="mr-2 h-4 w-4" />
-                Back to Blog
+                Back to News
               </Link>
             </Button>
           </div>
@@ -94,7 +93,7 @@ const BlogPost = () => {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           {/* Left Sidebar Ad */}
           <div className="hidden lg:block lg:col-span-2">
-            <AdPlacement size="sidebar" position="blogpost-left-sidebar" />
+            <AdPlacement size="sidebar" position="article-left-sidebar" />
           </div>
 
           {/* Main Content */}
@@ -103,24 +102,16 @@ const BlogPost = () => {
               {/* Header */}
               <div className="p-6 border-b border-gray-200">
                 <Button variant="outline" size="sm" asChild className="mb-4">
-                  <Link to="/blog">
+                  <Link to="/news">
                     <ArrowLeft className="mr-2 h-4 w-4" />
-                    Back to Blog
+                    Back to News
                   </Link>
                 </Button>
 
                 <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center space-x-2">
-                    <Badge variant="secondary" className="capitalize">
-                      {post.category}
-                    </Badge>
-                    {post.read_time && (
-                      <div className="flex items-center text-sm text-gray-500">
-                        <Clock className="h-4 w-4 mr-1" />
-                        {post.read_time}
-                      </div>
-                    )}
-                  </div>
+                  <Badge variant="secondary" className="capitalize">
+                    {article.category}
+                  </Badge>
                   <Button variant="outline" size="sm" onClick={handleShare}>
                     <Share2 className="h-4 w-4 mr-2" />
                     Share
@@ -128,17 +119,17 @@ const BlogPost = () => {
                 </div>
 
                 <h1 className="text-3xl font-bold text-gray-900 mb-4">
-                  {post.title}
+                  {article.title}
                 </h1>
 
                 <div className="flex items-center space-x-4 text-sm text-gray-500">
                   <div className="flex items-center">
                     <User className="h-4 w-4 mr-1" />
-                    {post.author}
+                    {article.author}
                   </div>
                   <div className="flex items-center">
                     <CalendarDays className="h-4 w-4 mr-1" />
-                    {new Date(post.published_at).toLocaleDateString('en-US', {
+                    {new Date(article.published_at).toLocaleDateString('en-US', {
                       year: 'numeric',
                       month: 'long',
                       day: 'numeric'
@@ -149,17 +140,17 @@ const BlogPost = () => {
 
               {/* Content */}
               <div className="p-6">
-                <AdPlacement size="banner" position="blogpost-top" className="mb-6" />
+                <AdPlacement size="banner" position="article-top" className="mb-6" />
 
                 <div className="prose prose-lg max-w-none">
-                  {post.content.split('\n').map((paragraph, index) => (
+                  {article.content.split('\n').map((paragraph, index) => (
                     <p key={index} className="mb-4 text-gray-700 leading-relaxed">
                       {paragraph}
                     </p>
                   ))}
                 </div>
 
-                <AdPlacement size="banner" position="blogpost-bottom" className="mt-8" />
+                <AdPlacement size="banner" position="article-bottom" className="mt-8" />
               </div>
             </div>
           </div>
@@ -167,8 +158,8 @@ const BlogPost = () => {
           {/* Right Sidebar Ad */}
           <div className="hidden lg:block lg:col-span-2">
             <div className="space-y-6">
-              <AdPlacement size="sidebar" position="blogpost-right-sidebar-1" />
-              <AdPlacement size="square" position="blogpost-right-sidebar-2" />
+              <AdPlacement size="sidebar" position="article-right-sidebar-1" />
+              <AdPlacement size="square" position="article-right-sidebar-2" />
             </div>
           </div>
         </div>
@@ -179,4 +170,4 @@ const BlogPost = () => {
   );
 };
 
-export default BlogPost;
+export default NewsArticle;

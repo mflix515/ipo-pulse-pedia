@@ -11,6 +11,8 @@ import Calculator from "./pages/Calculator";
 import BrokerComparison from "./pages/BrokerComparison";
 import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
+import News from "./pages/News";
+import NewsArticle from "./pages/NewsArticle";
 import Calendar from "./pages/Calendar";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -34,11 +36,13 @@ const App = () => (
             <Route path="/broker-comparison" element={<BrokerComparison />} />
             <Route path="/blog" element={<Blog />} />
             <Route path="/blog/:id" element={<BlogPost />} />
+            <Route path="/news" element={<News />} />
+            <Route path="/news/:id" element={<NewsArticle />} />
             <Route path="/calendar" element={<Calendar />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/profile" element={<Profile />} />
-            <Route path="/admin/*" element={<Admin />} />
+            <Route path="/crm-admin/*" element={<Admin />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
