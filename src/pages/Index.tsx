@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -8,6 +7,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { TrendingUp, Calendar, Calculator, BarChart3, ArrowRight, Star } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import TopHeaderSlider from '@/components/TopHeaderSlider';
+import EnhancedIPOCard from '@/components/EnhancedIPOCard';
+import JoinUsSection from '@/components/JoinUsSection';
+import AdPlacement from '@/components/AdPlacement';
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState('upcoming');
@@ -197,26 +200,27 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      <TopHeaderSlider />
       <Navbar />
       
       {/* Hero Section */}
-      <section className="bg-gradient-to-r from-blue-600 to-blue-800 text-white py-16">
+      <section className="bg-gradient-to-r from-green-600 to-green-800 text-white py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-            <h1 className="text-4xl md:text-6xl font-bold mb-6">
+            <h1 className="text-4xl md:text-6xl font-bold mb-6 animate-fade-in">
               Welcome to IPO-Pedia
             </h1>
-            <p className="text-xl md:text-2xl mb-8 text-blue-100">
+            <p className="text-xl md:text-2xl mb-8 text-green-100">
               Your Complete Guide to IPO Investments
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link to="/calculator">
-                <Button size="lg" variant="secondary" className="text-blue-600">
+                <Button size="lg" variant="secondary" className="text-green-600 hover:bg-white">
                   Try P&L Calculator
                 </Button>
               </Link>
               <Link to="/calendar">
-                <Button size="lg" variant="outline" className="text-white border-white hover:bg-white hover:text-blue-600">
+                <Button size="lg" variant="outline" className="text-white border-white hover:bg-white hover:text-green-600">
                   View IPO Calendar
                 </Button>
               </Link>
@@ -225,19 +229,26 @@ const Index = () => {
         </div>
       </section>
 
+      {/* Ad Banner */}
+      <div className="bg-white py-4">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <AdPlacement size="banner" position="hero-bottom" />
+        </div>
+      </div>
+
       {/* Features Section */}
-      <section className="py-16">
+      <section className="py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-3xl font-bold text-center mb-12">Powerful IPO Tools</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {features.map((feature, index) => (
               <Link key={index} to={feature.link}>
-                <Card className="text-center hover:shadow-lg transition-shadow cursor-pointer">
+                <Card className="text-center hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 cursor-pointer">
                   <CardHeader>
-                    <div className="mx-auto bg-blue-100 w-12 h-12 rounded-lg flex items-center justify-center mb-4">
-                      <feature.icon className="h-6 w-6 text-blue-600" />
+                    <div className="mx-auto bg-green-100 w-12 h-12 rounded-lg flex items-center justify-center mb-4">
+                      <feature.icon className="h-6 w-6 text-green-600" />
                     </div>
-                    <CardTitle>{feature.title}</CardTitle>
+                    <CardTitle className="text-green-800">{feature.title}</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <p className="text-gray-600">{feature.description}</p>
@@ -250,57 +261,75 @@ const Index = () => {
       </section>
 
       {/* IPO Listings */}
-      <section className="py-16 bg-white">
+      <section className="py-16 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-3xl font-bold text-center mb-12">IPO Market Overview</h2>
           
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="grid w-full grid-cols-4">
-              <TabsTrigger value="upcoming">Upcoming</TabsTrigger>
-              <TabsTrigger value="open">Open</TabsTrigger>
-              <TabsTrigger value="closed">Closed</TabsTrigger>
-              <TabsTrigger value="listed">Listed</TabsTrigger>
+              <TabsTrigger value="upcoming" className="data-[state=active]:bg-green-600 data-[state=active]:text-white">Upcoming</TabsTrigger>
+              <TabsTrigger value="open" className="data-[state=active]:bg-green-600 data-[state=active]:text-white">Open</TabsTrigger>
+              <TabsTrigger value="closed" className="data-[state=active]:bg-green-600 data-[state=active]:text-white">Closed</TabsTrigger>
+              <TabsTrigger value="listed" className="data-[state=active]:bg-green-600 data-[state=active]:text-white">Listed</TabsTrigger>
             </TabsList>
             
             <TabsContent value="upcoming" className="mt-8">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {ipoData.upcoming.map(ipo => renderIPOCard(ipo, 'upcoming'))}
+                {ipoData.upcoming.map(ipo => (
+                  <EnhancedIPOCard key={ipo.id} ipo={ipo} type="upcoming" />
+                ))}
               </div>
             </TabsContent>
             
             <TabsContent value="open" className="mt-8">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {ipoData.open.map(ipo => renderIPOCard(ipo, 'open'))}
+                {ipoData.open.map(ipo => (
+                  <EnhancedIPOCard key={ipo.id} ipo={ipo} type="open" />
+                ))}
               </div>
             </TabsContent>
             
             <TabsContent value="closed" className="mt-8">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {ipoData.closed.map(ipo => renderIPOCard(ipo, 'closed'))}
+                {ipoData.closed.map(ipo => (
+                  <EnhancedIPOCard key={ipo.id} ipo={ipo} type="closed" />
+                ))}
               </div>
             </TabsContent>
             
             <TabsContent value="listed" className="mt-8">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {ipoData.listed.map(ipo => renderIPOCard(ipo, 'listed'))}
+                {ipoData.listed.map(ipo => (
+                  <EnhancedIPOCard key={ipo.id} ipo={ipo} type="listed" />
+                ))}
               </div>
             </TabsContent>
           </Tabs>
         </div>
       </section>
 
+      {/* Ad Section */}
+      <div className="bg-white py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <AdPlacement size="banner" position="mid-content" />
+        </div>
+      </div>
+
+      {/* Join Us Section */}
+      <JoinUsSection />
+
       {/* Newsletter Signup */}
-      <section className="py-16 bg-gray-100">
+      <section className="py-16 bg-green-50">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl font-bold mb-4">Stay Updated with IPO Alerts</h2>
+          <h2 className="text-3xl font-bold mb-4 text-green-800">Stay Updated with IPO Alerts</h2>
           <p className="text-gray-600 mb-8">Get the latest IPO news and updates directly in your inbox</p>
           <div className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
             <input
               type="email"
               placeholder="Enter your email"
-              className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
             />
-            <Button>Subscribe</Button>
+            <Button className="bg-green-600 hover:bg-green-700">Subscribe</Button>
           </div>
         </div>
       </section>
