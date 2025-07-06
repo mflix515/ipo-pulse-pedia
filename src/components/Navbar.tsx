@@ -34,7 +34,7 @@ const Navbar = () => {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeDropdown, setActiveDropdown] = useState('');
-  const { user, signOut } = useAuth();
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -261,7 +261,7 @@ const Navbar = () => {
                   <DropdownMenuItem onClick={() => navigate('/crm-admin')}>
                     Admin Panel
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={signOut}>
+                  <DropdownMenuItem onClick={logout}>
                     Logout
                   </DropdownMenuItem>
                 </DropdownMenuContent>

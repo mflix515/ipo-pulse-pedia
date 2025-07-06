@@ -33,6 +33,12 @@ interface IPO {
   listing_price: string | null;
   current_price: string | null;
   change_percentage: string | null;
+  created_at: string;
+  updated_at: string;
+  company_description: string | null;
+  financial_highlights: string | null;
+  shareholding_pattern: any | null;
+  subscription_details: any | null;
 }
 
 const Index = () => {
