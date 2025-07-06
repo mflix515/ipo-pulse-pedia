@@ -13,33 +13,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Filter, SortAsc } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import type { Tables } from '@/integrations/supabase/types';
 
-interface IPO {
-  id: string;
-  name: string;
-  type: 'mainboard' | 'sme';
-  status: 'upcoming' | 'open' | 'closed' | 'listed';
-  price_range: string | null;
-  lot_size: number | null;
-  min_investment: string | null;
-  issue_size: string | null;
-  open_date: string | null;
-  close_date: string | null;
-  listing_date: string | null;
-  gmp: string | null;
-  profit_per_lot: string | null;
-  category: string | null;
-  subscription_rate: string | null;
-  listing_price: string | null;
-  current_price: string | null;
-  change_percentage: string | null;
-  created_at: string;
-  updated_at: string;
-  company_description: string | null;
-  financial_highlights: string | null;
-  shareholding_pattern: any | null;
-  subscription_details: any | null;
-}
+// Use the Supabase generated type directly
+type IPO = Tables<'ipos'>;
 
 const Index = () => {
   const [searchParams] = useSearchParams();
