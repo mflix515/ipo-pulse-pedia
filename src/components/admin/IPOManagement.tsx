@@ -5,21 +5,24 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
+import { Textarea } from '@/components/ui/textarea';
 import { 
   PlusCircle, 
   Edit, 
   Trash2, 
   Search,
   Calendar,
-  TrendingUp
+  TrendingUp,
+  FileText
 } from 'lucide-react';
 
 const IPOManagement = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [showAddForm, setShowAddForm] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
 
   // Mock data - this would come from your database
-  const ipos = [
+  const [ipos, setIpos] = useState([
     {
       id: '1',
       name: 'Tech Solutions Ltd',
@@ -28,7 +31,15 @@ const IPOManagement = () => {
       priceRange: '₹100-120',
       openDate: '2024-01-15',
       closeDate: '2024-01-17',
-      issueSize: '₹500 Cr'
+      allotmentDate: '2024-01-20',
+      issueSize: '₹500 Cr',
+      minInvestment: '₹15,000',
+      lotSize: '125',
+      about: 'Leading technology solutions provider',
+      strengths: 'Strong market position, experienced management',
+      weaknesses: 'High debt levels, intense competition',
+      applicationDetails: 'Apply through ASBA, UPI payments accepted',
+      faqs: 'Check allotment status on registrar website'
     },
     {
       id: '2',
@@ -38,9 +49,17 @@ const IPOManagement = () => {
       priceRange: '₹50-60',
       openDate: '2024-01-20',
       closeDate: '2024-01-22',
-      issueSize: '₹100 Cr'
+      allotmentDate: '2024-01-25',
+      issueSize: '₹100 Cr',
+      minInvestment: '₹10,000',
+      lotSize: '200',
+      about: 'Renewable energy solutions company',
+      strengths: 'Growing market, government support',
+      weaknesses: 'Capital intensive, weather dependent',
+      applicationDetails: 'Online application through brokers',
+      faqs: 'Minimum application is 1 lot'
     }
-  ];
+  ]);
 
   const filteredIPOs = ipos.filter(ipo =>
     ipo.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -55,9 +74,29 @@ const IPOManagement = () => {
     }
   };
 
+  const handleEdit = (id: string) => {
+    setEditingId(id);
+    setShowAddForm(true);
+    console.log('Editing IPO:', id);
+  };
+
+  const handleDelete = (id: string) => {
+    if (window.confirm('Are you sure you want to delete this IPO?')) {
+      setIpos(prev => prev.filter(ipo => ipo.id !== id));
+      console.log('Deleted IPO:', id);
+    }
+  };
+
+  const handleSave = () => {
+    // Implement save functionality
+    setShowAddForm(false);
+    setEditingId(null);
+    console.log('IPO saved');
+  };
+
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <h2 className="text-2xl font-bold">IPO Management</h2>
         <Button onClick={() => setShowAddForm(true)} className="flex items-center gap-2">
           <PlusCircle className="h-4 w-4" />
@@ -67,15 +106,15 @@ const IPOManagement = () => {
 
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <CardTitle>All IPOs</CardTitle>
-            <div className="relative">
+            <div className="relative w-full sm:w-64">
               <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
               <Input
                 placeholder="Search IPOs..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 w-64"
+                className="pl-10"
               />
             </div>
           </div>
@@ -84,13 +123,14 @@ const IPOManagement = () => {
           <div className="space-y-4">
             {filteredIPOs.map((ipo) => (
               <div key={ipo.id} className="border rounded-lg p-4 hover:bg-gray-50">
-                <div className="flex items-center justify-between">
-                  <div>
+                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                  <div className="flex-1">
                     <h3 className="font-semibold text-lg">{ipo.name}</h3>
-                    <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 mt-2 text-sm text-muted-foreground">
                       <span>Type: {ipo.type}</span>
                       <span>Price: {ipo.priceRange}</span>
                       <span>Size: {ipo.issueSize}</span>
+                      <span>Lot Size: {ipo.lotSize}</span>
                     </div>
                     <div className="flex items-center gap-2 mt-2">
                       <Calendar className="h-4 w-4" />
@@ -101,10 +141,18 @@ const IPOManagement = () => {
                     <Badge className={getStatusColor(ipo.status)}>
                       {ipo.status}
                     </Badge>
-                    <Button variant="outline" size="sm">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => handleEdit(ipo.id)}
+                    >
                       <Edit className="h-4 w-4" />
                     </Button>
-                    <Button variant="outline" size="sm">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => handleDelete(ipo.id)}
+                    >
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>
@@ -118,7 +166,7 @@ const IPOManagement = () => {
       {showAddForm && (
         <Card>
           <CardHeader>
-            <CardTitle>Add New IPO</CardTitle>
+            <CardTitle>{editingId ? 'Edit IPO' : 'Add New IPO'}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -142,6 +190,14 @@ const IPOManagement = () => {
                 <Input id="issueSize" placeholder="₹500 Cr" />
               </div>
               <div>
+                <Label htmlFor="minInvestment">Minimum Investment</Label>
+                <Input id="minInvestment" placeholder="₹15,000" />
+              </div>
+              <div>
+                <Label htmlFor="lotSize">Lot Size</Label>
+                <Input id="lotSize" placeholder="125" />
+              </div>
+              <div>
                 <Label htmlFor="openDate">Open Date</Label>
                 <Input id="openDate" type="date" />
               </div>
@@ -149,10 +205,43 @@ const IPOManagement = () => {
                 <Label htmlFor="closeDate">Close Date</Label>
                 <Input id="closeDate" type="date" />
               </div>
+              <div>
+                <Label htmlFor="allotmentDate">Allotment Date</Label>
+                <Input id="allotmentDate" type="date" />
+              </div>
+              <div>
+                <Label htmlFor="ipoDoc">IPO Document Link</Label>
+                <Input id="ipoDoc" placeholder="https://example.com/ipo-doc" />
+              </div>
+              <div className="md:col-span-2">
+                <Label htmlFor="about">About IPO</Label>
+                <Textarea id="about" placeholder="Enter IPO description" />
+              </div>
+              <div className="md:col-span-2">
+                <Label htmlFor="strengths">Strengths & Financials</Label>
+                <Textarea id="strengths" placeholder="Enter strengths and financial highlights" />
+              </div>
+              <div className="md:col-span-2">
+                <Label htmlFor="weaknesses">Weaknesses</Label>
+                <Textarea id="weaknesses" placeholder="Enter weaknesses and risks" />
+              </div>
+              <div className="md:col-span-2">
+                <Label htmlFor="applicationDetails">Application Details</Label>
+                <Textarea id="applicationDetails" placeholder="Enter application process details" />
+              </div>
+              <div className="md:col-span-2">
+                <Label htmlFor="faqs">Top FAQs</Label>
+                <Textarea id="faqs" placeholder="Enter frequently asked questions" />
+              </div>
             </div>
             <div className="flex gap-2 mt-6">
-              <Button>Save IPO</Button>
-              <Button variant="outline" onClick={() => setShowAddForm(false)}>
+              <Button onClick={handleSave}>
+                {editingId ? 'Update IPO' : 'Save IPO'}
+              </Button>
+              <Button variant="outline" onClick={() => {
+                setShowAddForm(false);
+                setEditingId(null);
+              }}>
                 Cancel
               </Button>
             </div>

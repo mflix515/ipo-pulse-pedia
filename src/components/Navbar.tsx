@@ -1,324 +1,214 @@
 
-import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useState } from 'react';
+import { Link, useLocation } from 'react-router-dom';
+import { Menu, X, BarChart3, Search, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { 
-  Search, 
-  Menu, 
-  Share, 
-  Phone, 
-  Sun, 
-  Moon, 
-  User,
-  ChevronDown,
-  ChevronUp,
-  Home,
-  TrendingUp,
-  Building2,
-  Users,
-  Globe,
-  MapPin,
-  BookOpen,
-  Newspaper
-} from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+import { Input } from '@/components/ui/input';
 
 const Navbar = () => {
-  const [isDarkMode, setIsDarkMode] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [activeDropdown, setActiveDropdown] = useState('');
-  const { user, logout } = useAuth();
-  const navigate = useNavigate();
+  const [isOpen, setIsOpen] = useState(false);
+  const [showSearch, setShowSearch] = useState(false);
+  const location = useLocation();
 
-  useEffect(() => {
-    const darkMode = localStorage.getItem('darkMode') === 'true';
-    setIsDarkMode(darkMode);
-    if (darkMode) {
-      document.documentElement.classList.add('dark');
-    }
-  }, []);
-
-  const toggleDarkMode = () => {
-    const newMode = !isDarkMode;
-    setIsDarkMode(newMode);
-    localStorage.setItem('darkMode', newMode.toString());
-    if (newMode) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-  };
-
-  const handleShare = () => {
-    if (navigator.share) {
-      navigator.share({
-        title: 'IPO-Pedia',
-        text: 'Check out this amazing IPO platform!',
-        url: window.location.href,
-      });
-    } else {
-      navigator.clipboard.writeText(window.location.href);
-      alert('Link copied to clipboard!');
-    }
-  };
-
-  const toggleDropdown = (dropdown: string) => {
-    setActiveDropdown(activeDropdown === dropdown ? '' : dropdown);
-  };
-
-  const menuItems = [
-    {
-      id: 'ipo',
-      label: 'IPO',
-      icon: TrendingUp,
-      items: [
-        { label: 'Mainboard IPO', link: '/mainboard-ipo' },
-        { label: 'SME IPO', link: '/sme-ipo' },
-        { label: 'IPO Calendar', link: '/calendar' },
-        { label: 'IPO Performance', link: '/performance' }
+  const navigation = [
+    { name: 'Home', href: '/' },
+    { 
+      name: 'IPO', 
+      href: '/mainboard-ipo',
+      dropdown: [
+        { name: 'Mainboard IPO', href: '/mainboard-ipo' },
+        { name: 'SME IPO', href: '/sme-ipo' }
       ]
     },
-    {
-      id: 'nfo',
-      label: 'NFO',
-      icon: Building2,
-      items: [
-        { label: 'Current NFOs', link: '/nfo?status=open' },
-        { label: 'Upcoming NFOs', link: '/nfo?status=upcoming' },
-        { label: 'NFO Performance', link: '/nfo?status=allotted' }
-      ]
-    },
-    {
-      id: 'broker',
-      label: 'Broker Reviews',
-      icon: Users,
-      items: [
-        { label: 'Compare Brokers', link: '/broker-comparison' },
-        { label: 'Broker Reviews', link: '/broker-reviews' },
-        { label: 'Account Opening', link: '/account-opening' }
-      ]
-    },
-    {
-      id: 'stockmarket',
-      label: 'Stock Market',
-      icon: Globe,
-      items: [
-        { label: 'Market News', link: '/news' },
-        { label: 'Market Analysis', link: '/analysis' },
-        { label: 'Trading Tips', link: '/tips' }
-      ]
-    },
-    {
-      id: 'tourism',
-      label: 'City Info',
-      icon: MapPin,
-      items: [
-        { label: 'Chittorgarh Tourism', link: '/tourism' },
-        { label: 'Local Business', link: '/business' },
-        { label: 'City Guide', link: '/city-guide' }
-      ]
-    }
+    { name: 'NFO', href: '/nfo' },
+    { name: 'Bonds', href: '/bonds' },
+    { name: 'Calculator', href: '/calculator' },
+    { name: 'Calendar', href: '/calendar' },
+    { name: 'Analysis', href: '/analysis' },
+    { name: 'Blog', href: '/blog' },
+    { name: 'News', href: '/news' }
   ];
 
+  const isActive = (path: string) => location.pathname === path;
+
   return (
-    <nav className="bg-white shadow-md border-b-2 border-red-500 sticky top-0 z-50">
+    <nav className="bg-white shadow-sm border-b sticky top-0 z-40">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
+        <div className="flex justify-between h-16">
           {/* Logo */}
           <div className="flex items-center">
             <Link to="/" className="flex items-center space-x-2">
-              <TrendingUp className="h-8 w-8 text-red-600" />
-              <span className="text-xl font-bold text-gray-900">IPO-Pedia</span>
+              <div className="bg-blue-600 text-white p-2 rounded-lg">
+                <BarChart3 className="h-5 w-5" />
+              </div>
+              <span className="text-xl font-bold text-gray-900 hidden sm:block">IPO-Pedia</span>
+              <span className="text-lg font-bold text-gray-900 sm:hidden">IPO</span>
             </Link>
           </div>
 
           {/* Desktop Navigation */}
           <div className="hidden lg:flex items-center space-x-1">
-            <Link to="/" className="flex items-center px-3 py-2 text-gray-700 hover:text-red-600 transition-colors">
-              <Home className="h-4 w-4 mr-1" />
-              Home
-            </Link>
-
-            {menuItems.map((item) => (
-              <div key={item.id} className="relative">
-                <button
-                  onClick={() => toggleDropdown(item.id)}
-                  className="flex items-center px-3 py-2 text-gray-700 hover:text-red-600 transition-colors"
-                >
-                  <item.icon className="h-4 w-4 mr-1" />
-                  {item.label}
-                  {activeDropdown === item.id ? (
-                    <ChevronUp className="h-3 w-3 ml-1" />
-                  ) : (
-                    <ChevronDown className="h-3 w-3 ml-1" />
-                  )}
-                </button>
-
-                {activeDropdown === item.id && (
-                  <div className="absolute top-full left-0 mt-1 w-56 bg-white border border-gray-200 rounded-md shadow-lg z-50">
-                    {item.items.map((subItem, index) => (
-                      <Link
-                        key={index}
-                        to={subItem.link}
-                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-red-600 transition-colors"
-                        onClick={() => setActiveDropdown('')}
-                      >
-                        {subItem.label}
-                      </Link>
-                    ))}
-                  </div>
-                )}
-              </div>
-            ))}
-
-            <Link to="/blog" className="flex items-center px-3 py-2 text-gray-700 hover:text-red-600 transition-colors">
-              <BookOpen className="h-4 w-4 mr-1" />
-              Blog
-            </Link>
-
-            <Link to="/news" className="flex items-center px-3 py-2 text-gray-700 hover:text-red-600 transition-colors">
-              <Newspaper className="h-4 w-4 mr-1" />
-              News
-            </Link>
-          </div>
-
-          {/* Search and Actions */}
-          <div className="flex items-center space-x-2">
-            {/* Search - Always visible on mobile */}
-            <div className="relative">
-              <input
-                type="text"
-                placeholder="Search IPOs..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-40 sm:w-60 px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
-              />
-              <Search className="absolute right-3 top-2.5 h-4 w-4 text-gray-400" />
-            </div>
-
-            {/* Share Button - Hidden on mobile */}
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleShare}
-              className="hidden sm:flex"
-            >
-              <Share className="h-4 w-4" />
-            </Button>
-
-            {/* Contact - Hidden on mobile */}
-            <Button
-              variant="ghost"
-              size="sm"
-              asChild
-              className="hidden sm:flex"
-            >
-              <Link to="/contact">
-                <Phone className="h-4 w-4 mr-1" />
-                Contact
-              </Link>
-            </Button>
-
-            {/* Dark Mode Toggle */}
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={toggleDarkMode}
-            >
-              {isDarkMode ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-            </Button>
-
-            {/* User Menu */}
-            {user ? (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="sm">
-                    <User className="h-4 w-4 mr-1" />
-                    Profile
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent>
-                  <DropdownMenuItem onClick={() => navigate('/profile')}>
-                    My Profile
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => navigate('/crm-admin')}>
-                    Admin Panel
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={logout}>
-                    Logout
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            ) : (
-              <Button variant="outline" size="sm" asChild>
-                <Link to="/login">Login</Link>
-              </Button>
-            )}
-
-            {/* Mobile Menu */}
-            <Sheet>
-              <SheetTrigger asChild>
-                <Button variant="ghost" size="sm" className="lg:hidden">
-                  <Menu className="h-4 w-4" />
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="right" className="w-80">
-                <div className="flex flex-col space-y-4 mt-8">
-                  <Link to="/" className="flex items-center px-3 py-2 text-gray-700 hover:text-red-600">
-                    <Home className="h-4 w-4 mr-2" />
-                    Home
-                  </Link>
-
-                  {menuItems.map((item) => (
-                    <div key={item.id} className="space-y-2">
-                      <div className="flex items-center px-3 py-2 text-gray-900 font-medium">
-                        <item.icon className="h-4 w-4 mr-2" />
-                        {item.label}
-                      </div>
-                      {item.items.map((subItem, index) => (
+            {navigation.map((item) => (
+              <div key={item.name} className="relative group">
+                {item.dropdown ? (
+                  <div className="relative">
+                    <Button
+                      variant="ghost"
+                      className={`flex items-center space-x-1 ${
+                        item.dropdown.some(sub => isActive(sub.href))
+                          ? 'text-blue-600 bg-blue-50'
+                          : 'text-gray-700 hover:text-blue-600'
+                      }`}
+                    >
+                      <span>{item.name}</span>
+                      <ChevronDown className="h-3 w-3" />
+                    </Button>
+                    <div className="absolute top-full left-0 mt-1 w-48 bg-white border shadow-lg rounded-md opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                      {item.dropdown.map((subItem) => (
                         <Link
-                          key={index}
-                          to={subItem.link}
-                          className="block px-6 py-1 text-sm text-gray-600 hover:text-red-600"
+                          key={subItem.name}
+                          to={subItem.href}
+                          className={`block px-4 py-2 text-sm hover:bg-gray-50 ${
+                            isActive(subItem.href) ? 'text-blue-600 bg-blue-50' : 'text-gray-700'
+                          }`}
                         >
-                          {subItem.label}
+                          {subItem.name}
                         </Link>
                       ))}
                     </div>
-                  ))}
-
-                  <Link to="/blog" className="flex items-center px-3 py-2 text-gray-700 hover:text-red-600">
-                    <BookOpen className="h-4 w-4 mr-2" />
-                    Blog
+                  </div>
+                ) : (
+                  <Link
+                    to={item.href}
+                    className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                      isActive(item.href)
+                        ? 'text-blue-600 bg-blue-50'
+                        : 'text-gray-700 hover:text-blue-600 hover:bg-gray-50'
+                    }`}
+                  >
+                    {item.name}
                   </Link>
+                )}
+              </div>
+            ))}
+          </div>
 
-                  <Link to="/news" className="flex items-center px-3 py-2 text-gray-700 hover:text-red-600">
-                    <Newspaper className="h-4 w-4 mr-2" />
-                    News
-                  </Link>
+          {/* Search and Mobile menu button */}
+          <div className="flex items-center space-x-2">
+            {/* Search Toggle */}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowSearch(!showSearch)}
+              className="lg:hidden"
+            >
+              <Search className="h-4 w-4" />
+            </Button>
 
-                  <Button onClick={handleShare} variant="ghost" className="justify-start">
-                    <Share className="h-4 w-4 mr-2" />
-                    Share
-                  </Button>
+            {/* Desktop Search */}
+            <div className="hidden lg:block">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <Input
+                  type="text"
+                  placeholder="Search IPOs, NFOs, Bonds..."
+                  className="pl-10 pr-4 py-2 w-64 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+                />
+              </div>
+            </div>
 
-                  <Link to="/contact" className="flex items-center px-3 py-2 text-gray-700 hover:text-red-600">
-                    <Phone className="h-4 w-4 mr-2" />
-                    Contact
-                  </Link>
-                </div>
-              </SheetContent>
-            </Sheet>
+            {/* Login/Register */}
+            <div className="hidden sm:flex items-center space-x-2">
+              <Link to="/login">
+                <Button variant="ghost" size="sm">Login</Button>
+              </Link>
+              <Link to="/register">
+                <Button size="sm">Register</Button>
+              </Link>
+            </div>
+
+            {/* Mobile menu button */}
+            <Button
+              variant="ghost"
+              onClick={() => setIsOpen(!isOpen)}
+              className="lg:hidden"
+            >
+              {isOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            </Button>
           </div>
         </div>
+
+        {/* Mobile Search */}
+        {showSearch && (
+          <div className="lg:hidden pb-4">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <Input
+                type="text"
+                placeholder="Search IPOs, NFOs, Bonds..."
+                className="pl-10 pr-4 py-2 w-full"
+              />
+            </div>
+          </div>
+        )}
       </div>
+
+      {/* Mobile Navigation Menu */}
+      {isOpen && (
+        <div className="lg:hidden bg-white border-t">
+          <div className="px-4 pt-2 pb-3 space-y-1 max-h-96 overflow-y-auto">
+            {navigation.map((item) => (
+              <div key={item.name}>
+                {item.dropdown ? (
+                  <div>
+                    <div className="px-3 py-2 text-sm font-medium text-gray-700 border-b">
+                      {item.name}
+                    </div>
+                    {item.dropdown.map((subItem) => (
+                      <Link
+                        key={subItem.name}
+                        to={subItem.href}
+                        onClick={() => setIsOpen(false)}
+                        className={`block px-6 py-2 text-sm ${
+                          isActive(subItem.href)
+                            ? 'text-blue-600 bg-blue-50'
+                            : 'text-gray-600 hover:text-blue-600 hover:bg-gray-50'
+                        }`}
+                      >
+                        {subItem.name}
+                      </Link>
+                    ))}
+                  </div>
+                ) : (
+                  <Link
+                    to={item.href}
+                    onClick={() => setIsOpen(false)}
+                    className={`block px-3 py-2 text-sm font-medium ${
+                      isActive(item.href)
+                        ? 'text-blue-600 bg-blue-50'
+                        : 'text-gray-700 hover:text-blue-600 hover:bg-gray-50'
+                    }`}
+                  >
+                    {item.name}
+                  </Link>
+                )}
+              </div>
+            ))}
+            
+            {/* Mobile Login/Register */}
+            <div className="pt-4 border-t">
+              <div className="flex space-x-2">
+                <Link to="/login" className="flex-1" onClick={() => setIsOpen(false)}>
+                  <Button variant="outline" size="sm" className="w-full">Login</Button>
+                </Link>
+                <Link to="/register" className="flex-1" onClick={() => setIsOpen(false)}>
+                  <Button size="sm" className="w-full">Register</Button>
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </nav>
   );
 };

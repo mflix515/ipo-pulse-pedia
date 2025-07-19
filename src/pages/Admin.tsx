@@ -6,6 +6,7 @@ import AdminDashboard from '@/components/admin/AdminDashboard';
 import AdminSidebar from '@/components/admin/AdminSidebar';
 import IPOManagement from '@/components/admin/IPOManagement';
 import NFOManagement from '@/components/admin/NFOManagement';
+import BondsManagement from '@/components/admin/BondsManagement';
 import UserManagement from '@/components/admin/UserManagement';
 import ContentManagement from '@/components/admin/ContentManagement';
 import NotificationCenter from '@/components/admin/NotificationCenter';
@@ -29,30 +30,33 @@ const Admin = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
-      <AdminSidebar />
-      <div className="flex-1 ml-64">
-        <div className="bg-white shadow-sm border-b">
-          <div className="px-6 py-4">
-            <h1 className="text-2xl font-bold text-gray-900">CRM Admin Panel</h1>
-            <p className="text-sm text-gray-600">Welcome, {user.name}</p>
+    <div className="min-h-screen bg-gray-50">
+      <div className="flex">
+        <AdminSidebar />
+        <div className="flex-1 ml-64">
+          <div className="bg-white shadow-sm border-b sticky top-0 z-30">
+            <div className="px-6 py-4">
+              <h1 className="text-2xl font-bold text-gray-900">CRM Admin Panel</h1>
+              <p className="text-sm text-gray-600">Welcome, {user.name}</p>
+            </div>
           </div>
-        </div>
-        
-        <div className="p-6">
-          <Routes>
-            <Route path="/" element={<AdminDashboard />} />
-            <Route path="/dashboard" element={<AdminDashboard />} />
-            <Route path="/ipos" element={<IPOManagement />} />
-            <Route path="/nfos" element={<NFOManagement />} />
-            <Route path="/users" element={<UserManagement />} />
-            <Route path="/content" element={<ContentManagement />} />
-            <Route path="/notifications" element={<NotificationCenter />} />
-            <Route path="/chatbot" element={<ChatbotConfiguration />} />
-            <Route path="/cities" element={<CityManagement />} />
-            <Route path="/ads" element={<AdsManagement />} />
-            <Route path="/analytics" element={<AnalyticsPanel />} />
-          </Routes>
+          
+          <div className="p-6 overflow-x-auto">
+            <Routes>
+              <Route path="/" element={<AdminDashboard />} />
+              <Route path="/dashboard" element={<AdminDashboard />} />
+              <Route path="/ipos" element={<IPOManagement />} />
+              <Route path="/nfos" element={<NFOManagement />} />
+              <Route path="/bonds" element={<BondsManagement />} />
+              <Route path="/users" element={<UserManagement />} />
+              <Route path="/content" element={<ContentManagement />} />
+              <Route path="/notifications" element={<NotificationCenter />} />
+              <Route path="/chatbot" element={<ChatbotConfiguration />} />
+              <Route path="/cities" element={<CityManagement />} />
+              <Route path="/ads" element={<AdsManagement />} />
+              <Route path="/analytics" element={<AnalyticsPanel />} />
+            </Routes>
+          </div>
         </div>
       </div>
     </div>

@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -28,6 +27,7 @@ import Disclaimer from "./pages/Disclaimer";
 import Contact from "./pages/Contact";
 import Performance from "./pages/Performance";
 import MarketAnalysis from "./pages/MarketAnalysis";
+import Bonds from "./pages/Bonds";
 
 const queryClient = new QueryClient();
 
@@ -44,6 +44,7 @@ const App = () => (
             <Route path="/mainboard-ipo" element={<MainboardIPO />} />
             <Route path="/sme-ipo" element={<SMEIPO />} />
             <Route path="/nfo" element={<NFO />} />
+            <Route path="/bonds" element={<Bonds />} />
             <Route path="/calculator" element={<Calculator />} />
             <Route path="/broker-comparison" element={<BrokerComparison />} />
             <Route path="/blog" element={<Blog />} />

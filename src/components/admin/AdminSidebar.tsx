@@ -13,7 +13,8 @@ import {
   TrendingUp,
   Building,
   Bell,
-  Bot
+  Bot,
+  Landmark
 } from 'lucide-react';
 
 const AdminSidebar = () => {
@@ -23,6 +24,7 @@ const AdminSidebar = () => {
     { path: '/crm-admin/dashboard', label: 'Dashboard', icon: BarChart3 },
     { path: '/crm-admin/ipos', label: 'IPO Management', icon: TrendingUp },
     { path: '/crm-admin/nfos', label: 'NFO Management', icon: Building },
+    { path: '/crm-admin/bonds', label: 'Bonds Management', icon: Landmark },
     { path: '/crm-admin/users', label: 'User Management', icon: Users },
     { path: '/crm-admin/content', label: 'Content Management', icon: FileText },
     { path: '/crm-admin/notifications', label: 'Notifications', icon: Bell },
@@ -33,12 +35,12 @@ const AdminSidebar = () => {
   ];
 
   return (
-    <div className="fixed left-0 top-0 h-full w-64 bg-white shadow-lg border-r z-50">
+    <div className="fixed left-0 top-0 h-full w-64 bg-white shadow-lg border-r z-40 overflow-y-auto">
       <div className="p-6 border-b">
         <h2 className="text-xl font-bold text-gray-900">IPOpedia Admin</h2>
       </div>
       
-      <nav className="mt-6">
+      <nav className="mt-6 pb-6">
         {menuItems.map((item) => {
           const Icon = item.icon;
           const isActive = location.pathname === item.path;
@@ -53,8 +55,8 @@ const AdminSidebar = () => {
                   : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
               }`}
             >
-              <Icon className="h-5 w-5 mr-3" />
-              {item.label}
+              <Icon className="h-5 w-5 mr-3 flex-shrink-0" />
+              <span className="truncate">{item.label}</span>
             </NavLink>
           );
         })}

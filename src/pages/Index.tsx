@@ -9,6 +9,7 @@ import AdPlacement from '@/components/AdPlacement';
 import SuccessStoriesSlider from '@/components/SuccessStoriesSlider';
 import EnhancedIPOCard from '@/components/EnhancedIPOCard';
 import LoadingSpinner from '@/components/LoadingSpinner';
+import AIChatbot from '@/components/AIChatbot';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Filter, SortAsc } from 'lucide-react';
@@ -77,14 +78,14 @@ const Index = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 overflow-x-hidden">
       {pageLoading && <LoadingSpinner />}
       <TopHeaderSlider />
       <Navbar />
       
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
         {/* Hero Section with Ads */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-8">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-6 mb-8">
           {/* Left Sidebar Ad */}
           <div className="hidden lg:block lg:col-span-2">
             <AdPlacement size="sidebar" position="left-sidebar" />
@@ -92,11 +93,11 @@ const Index = () => {
 
           {/* Main Content */}
           <div className="lg:col-span-8">
-            <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-              <h1 className="text-3xl font-bold text-gray-900 mb-4">
+            <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6 mb-6">
+              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4">
                 Welcome to IPO-Pedia
               </h1>
-              <p className="text-gray-600 mb-6">
+              <p className="text-gray-600 mb-6 text-sm sm:text-base">
                 Your comprehensive platform for IPO information, analysis, and investment guidance.
                 Track Mainboard and SME IPOs with real-time updates and expert insights.
               </p>
@@ -106,52 +107,57 @@ const Index = () => {
                 <Button
                   variant={selectedType === 'all' ? 'default' : 'outline'}
                   onClick={() => setSelectedType('all')}
-                  className="bg-green-600 hover:bg-green-700"
+                  className="bg-green-600 hover:bg-green-700 text-xs sm:text-sm"
+                  size="sm"
                 >
                   All IPOs
                 </Button>
                 <Button
                   variant={selectedType === 'mainboard' ? 'default' : 'outline'}
                   onClick={() => setSelectedType('mainboard')}
-                  className="bg-blue-600 hover:bg-blue-700"
+                  className="bg-blue-600 hover:bg-blue-700 text-xs sm:text-sm"
+                  size="sm"
                 >
                   Mainboard IPO
                 </Button>
                 <Button
                   variant={selectedType === 'sme' ? 'default' : 'outline'}
                   onClick={() => setSelectedType('sme')}
-                  className="bg-purple-600 hover:bg-purple-700"
+                  className="bg-purple-600 hover:bg-purple-700 text-xs sm:text-sm"
+                  size="sm"
                 >
                   SME IPO
                 </Button>
               </div>
 
               {/* Banner Ad */}
-              <AdPlacement size="banner" position="hero-banner" className="mb-6" />
+              <div className="mb-6">
+                <AdPlacement size="banner" position="hero-banner" />
+              </div>
 
               {/* IPO Tabs */}
               <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
-                <TabsList className="grid w-full grid-cols-4">
-                  <TabsTrigger value="upcoming">Upcoming</TabsTrigger>
-                  <TabsTrigger value="open">Open</TabsTrigger>
-                  <TabsTrigger value="closed">Closed</TabsTrigger>
-                  <TabsTrigger value="listed">Listed</TabsTrigger>
+                <TabsList className="grid w-full grid-cols-4 mb-6">
+                  <TabsTrigger value="upcoming" className="text-xs sm:text-sm">Upcoming</TabsTrigger>
+                  <TabsTrigger value="open" className="text-xs sm:text-sm">Open</TabsTrigger>
+                  <TabsTrigger value="closed" className="text-xs sm:text-sm">Closed</TabsTrigger>
+                  <TabsTrigger value="listed" className="text-xs sm:text-sm">Listed</TabsTrigger>
                 </TabsList>
 
                 {['upcoming', 'open', 'closed', 'listed'].map((status) => (
                   <TabsContent key={status} value={status} className="mt-6">
-                    <div className="flex justify-between items-center mb-4">
-                      <h2 className="text-xl font-semibold capitalize">
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-2">
+                      <h2 className="text-lg sm:text-xl font-semibold capitalize">
                         {status} IPOs {selectedType !== 'all' && `(${selectedType.toUpperCase()})`}
                       </h2>
                       <div className="flex space-x-2">
-                        <Button variant="outline" size="sm">
-                          <Filter className="h-4 w-4 mr-2" />
-                          Filter
+                        <Button variant="outline" size="sm" className="text-xs">
+                          <Filter className="h-4 w-4 mr-1 sm:mr-2" />
+                          <span className="hidden sm:inline">Filter</span>
                         </Button>
-                        <Button variant="outline" size="sm">
-                          <SortAsc className="h-4 w-4 mr-2" />
-                          Sort
+                        <Button variant="outline" size="sm" className="text-xs">
+                          <SortAsc className="h-4 w-4 mr-1 sm:mr-2" />
+                          <span className="hidden sm:inline">Sort</span>
                         </Button>
                       </div>
                     </div>
@@ -161,7 +167,7 @@ const Index = () => {
                         <p className="text-gray-500">No {status} IPOs found.</p>
                       </div>
                     ) : (
-                      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
                         {filteredIPOs.map((ipo) => (
                           <EnhancedIPOCard
                             key={ipo.id}
@@ -225,6 +231,7 @@ const Index = () => {
       </div>
 
       <Footer />
+      <AIChatbot />
     </div>
   );
 };
