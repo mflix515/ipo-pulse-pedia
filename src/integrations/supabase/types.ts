@@ -7,6 +7,11 @@ export type Json =
   | Json[]
 
 export type Database = {
+  // Allows to automatically instanciate createClient with right options
+  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
+  __InternalSupabase: {
+    PostgrestVersion: "12.2.3 (519615d)"
+  }
   public: {
     Tables: {
       ads: {
@@ -138,6 +143,165 @@ export type Database = {
         }
         Relationships: []
       }
+      chatbot_conversations: {
+        Row: {
+          confidence_score: number | null
+          created_at: string
+          id: string
+          intent: string | null
+          message: string
+          response: string
+          session_id: string
+          user_id: string | null
+        }
+        Insert: {
+          confidence_score?: number | null
+          created_at?: string
+          id?: string
+          intent?: string | null
+          message: string
+          response: string
+          session_id: string
+          user_id?: string | null
+        }
+        Update: {
+          confidence_score?: number | null
+          created_at?: string
+          id?: string
+          intent?: string | null
+          message?: string
+          response?: string
+          session_id?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      chatbot_flows: {
+        Row: {
+          created_at: string
+          flow_data: Json
+          id: string
+          is_active: boolean | null
+          name: string
+          updated_at: string
+          version: number | null
+        }
+        Insert: {
+          created_at?: string
+          flow_data: Json
+          id?: string
+          is_active?: boolean | null
+          name: string
+          updated_at?: string
+          version?: number | null
+        }
+        Update: {
+          created_at?: string
+          flow_data?: Json
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          updated_at?: string
+          version?: number | null
+        }
+        Relationships: []
+      }
+      cities: {
+        Row: {
+          area: string | null
+          brokers_available: string[] | null
+          business_environment: string | null
+          cost_of_living: string | null
+          country: string
+          created_at: string
+          description: string | null
+          economic_overview: string | null
+          id: string
+          image_url: string | null
+          investment_opportunities: string | null
+          is_active: boolean | null
+          local_investment_tips: string | null
+          major_companies: string | null
+          name: string
+          population: string | null
+          state: string
+          stock_exchanges: string | null
+          updated_at: string
+        }
+        Insert: {
+          area?: string | null
+          brokers_available?: string[] | null
+          business_environment?: string | null
+          cost_of_living?: string | null
+          country?: string
+          created_at?: string
+          description?: string | null
+          economic_overview?: string | null
+          id?: string
+          image_url?: string | null
+          investment_opportunities?: string | null
+          is_active?: boolean | null
+          local_investment_tips?: string | null
+          major_companies?: string | null
+          name: string
+          population?: string | null
+          state: string
+          stock_exchanges?: string | null
+          updated_at?: string
+        }
+        Update: {
+          area?: string | null
+          brokers_available?: string[] | null
+          business_environment?: string | null
+          cost_of_living?: string | null
+          country?: string
+          created_at?: string
+          description?: string | null
+          economic_overview?: string | null
+          id?: string
+          image_url?: string | null
+          investment_opportunities?: string | null
+          is_active?: boolean | null
+          local_investment_tips?: string | null
+          major_companies?: string | null
+          name?: string
+          population?: string | null
+          state?: string
+          stock_exchanges?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      country_codes: {
+        Row: {
+          country_code: string
+          country_name: string
+          id: string
+          is_active: boolean | null
+          phone_code: string
+          phone_format: string | null
+          phone_length: number
+        }
+        Insert: {
+          country_code: string
+          country_name: string
+          id?: string
+          is_active?: boolean | null
+          phone_code: string
+          phone_format?: string | null
+          phone_length: number
+        }
+        Update: {
+          country_code?: string
+          country_name?: string
+          id?: string
+          is_active?: boolean | null
+          phone_code?: string
+          phone_format?: string | null
+          phone_length?: number
+        }
+        Relationships: []
+      }
       faqs: {
         Row: {
           answer: string
@@ -170,6 +334,62 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      ipo_allotments: {
+        Row: {
+          allotment_amount: number | null
+          allotment_date: string | null
+          application_number: string | null
+          created_at: string
+          id: string
+          ipo_id: string | null
+          lots_allotted: number | null
+          lots_applied: number
+          pan_number: string | null
+          refund_amount: number | null
+          status: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          allotment_amount?: number | null
+          allotment_date?: string | null
+          application_number?: string | null
+          created_at?: string
+          id?: string
+          ipo_id?: string | null
+          lots_allotted?: number | null
+          lots_applied: number
+          pan_number?: string | null
+          refund_amount?: number | null
+          status?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          allotment_amount?: number | null
+          allotment_date?: string | null
+          application_number?: string | null
+          created_at?: string
+          id?: string
+          ipo_id?: string | null
+          lots_allotted?: number | null
+          lots_applied?: number
+          pan_number?: string | null
+          refund_amount?: number | null
+          status?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ipo_allotments_ipo_id_fkey"
+            columns: ["ipo_id"]
+            isOneToOne: false
+            referencedRelation: "ipos"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       ipo_performance: {
         Row: {
@@ -209,6 +429,59 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      ipo_trades: {
+        Row: {
+          created_at: string
+          id: string
+          ipo_id: string | null
+          issue_price: number | null
+          listing_price: number | null
+          lots_allotted: number | null
+          lots_applied: number
+          profit_loss: number | null
+          sell_date: string | null
+          sell_price: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          ipo_id?: string | null
+          issue_price?: number | null
+          listing_price?: number | null
+          lots_allotted?: number | null
+          lots_applied: number
+          profit_loss?: number | null
+          sell_date?: string | null
+          sell_price?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          ipo_id?: string | null
+          issue_price?: number | null
+          listing_price?: number | null
+          lots_allotted?: number | null
+          lots_applied?: number
+          profit_loss?: number | null
+          sell_date?: string | null
+          sell_price?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ipo_trades_ipo_id_fkey"
+            columns: ["ipo_id"]
+            isOneToOne: false
+            referencedRelation: "ipos"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       ipos: {
         Row: {
@@ -360,35 +633,194 @@ export type Database = {
         }
         Relationships: []
       }
-      profiles: {
+      nfos: {
         Row: {
-          city: string | null
+          allotment_date: string | null
+          aum: string | null
+          benchmark: string | null
+          category: string | null
+          close_date: string | null
           created_at: string
-          email: string
+          exit_load: string | null
+          expense_ratio: string | null
+          fund_house: string | null
+          fund_manager: string | null
           id: string
-          mobile: string | null
+          investment_objective: string | null
+          maximum_investment: string | null
+          minimum_investment: string | null
           name: string
-          pan_card: string | null
+          nav: string | null
+          open_date: string | null
+          risk_level: string | null
+          status: string
+          type: string
           updated_at: string
         }
         Insert: {
-          city?: string | null
+          allotment_date?: string | null
+          aum?: string | null
+          benchmark?: string | null
+          category?: string | null
+          close_date?: string | null
           created_at?: string
-          email: string
-          id: string
-          mobile?: string | null
+          exit_load?: string | null
+          expense_ratio?: string | null
+          fund_house?: string | null
+          fund_manager?: string | null
+          id?: string
+          investment_objective?: string | null
+          maximum_investment?: string | null
+          minimum_investment?: string | null
           name: string
-          pan_card?: string | null
+          nav?: string | null
+          open_date?: string | null
+          risk_level?: string | null
+          status?: string
+          type?: string
           updated_at?: string
         }
         Update: {
-          city?: string | null
+          allotment_date?: string | null
+          aum?: string | null
+          benchmark?: string | null
+          category?: string | null
+          close_date?: string | null
           created_at?: string
+          exit_load?: string | null
+          expense_ratio?: string | null
+          fund_house?: string | null
+          fund_manager?: string | null
+          id?: string
+          investment_objective?: string | null
+          maximum_investment?: string | null
+          minimum_investment?: string | null
+          name?: string
+          nav?: string | null
+          open_date?: string | null
+          risk_level?: string | null
+          status?: string
+          type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      notifications: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          message: string
+          roles: string[] | null
+          send_email: boolean | null
+          send_sms: boolean | null
+          sent_at: string | null
+          target_users: string | null
+          title: string
+          type: string | null
+          user_ids: string[] | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          message: string
+          roles?: string[] | null
+          send_email?: boolean | null
+          send_sms?: boolean | null
+          sent_at?: string | null
+          target_users?: string | null
+          title: string
+          type?: string | null
+          user_ids?: string[] | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          message?: string
+          roles?: string[] | null
+          send_email?: boolean | null
+          send_sms?: boolean | null
+          sent_at?: string | null
+          target_users?: string | null
+          title?: string
+          type?: string | null
+          user_ids?: string[] | null
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          address: string | null
+          annual_income: string | null
+          bank_account_number: string | null
+          bank_name: string | null
+          broker_name: string | null
+          city: string | null
+          country: string | null
+          created_at: string
+          date_of_birth: string | null
+          demat_account_number: string | null
+          email: string
+          id: string
+          ifsc_code: string | null
+          investment_experience: string | null
+          mobile: string | null
+          name: string
+          occupation: string | null
+          pan_card: string | null
+          pincode: string | null
+          risk_appetite: string | null
+          state: string | null
+          updated_at: string
+        }
+        Insert: {
+          address?: string | null
+          annual_income?: string | null
+          bank_account_number?: string | null
+          bank_name?: string | null
+          broker_name?: string | null
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          date_of_birth?: string | null
+          demat_account_number?: string | null
+          email: string
+          id: string
+          ifsc_code?: string | null
+          investment_experience?: string | null
+          mobile?: string | null
+          name: string
+          occupation?: string | null
+          pan_card?: string | null
+          pincode?: string | null
+          risk_appetite?: string | null
+          state?: string | null
+          updated_at?: string
+        }
+        Update: {
+          address?: string | null
+          annual_income?: string | null
+          bank_account_number?: string | null
+          bank_name?: string | null
+          broker_name?: string | null
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          date_of_birth?: string | null
+          demat_account_number?: string | null
           email?: string
           id?: string
+          ifsc_code?: string | null
+          investment_experience?: string | null
           mobile?: string | null
           name?: string
+          occupation?: string | null
           pan_card?: string | null
+          pincode?: string | null
+          risk_appetite?: string | null
+          state?: string | null
           updated_at?: string
         }
         Relationships: []
@@ -453,6 +885,57 @@ export type Database = {
         }
         Relationships: []
       }
+      support_tickets: {
+        Row: {
+          assigned_to: string | null
+          category: string | null
+          created_at: string
+          email: string | null
+          id: string
+          message: string
+          name: string | null
+          phone: string | null
+          priority: string | null
+          resolution: string | null
+          status: string | null
+          subject: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          assigned_to?: string | null
+          category?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          message: string
+          name?: string | null
+          phone?: string | null
+          priority?: string | null
+          resolution?: string | null
+          status?: string | null
+          subject: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          assigned_to?: string | null
+          category?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          message?: string
+          name?: string | null
+          phone?: string | null
+          priority?: string | null
+          resolution?: string | null
+          status?: string | null
+          subject?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       user_ipo_applications: {
         Row: {
           applied_at: string
@@ -482,6 +965,76 @@ export type Database = {
           },
         ]
       }
+      user_nfo_applications: {
+        Row: {
+          amount: string | null
+          applied_at: string
+          id: string
+          nfo_id: string | null
+          status: string | null
+          units: string | null
+          user_id: string
+        }
+        Insert: {
+          amount?: string | null
+          applied_at?: string
+          id?: string
+          nfo_id?: string | null
+          status?: string | null
+          units?: string | null
+          user_id: string
+        }
+        Update: {
+          amount?: string | null
+          applied_at?: string
+          id?: string
+          nfo_id?: string | null
+          status?: string | null
+          units?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_nfo_applications_nfo_id_fkey"
+            columns: ["nfo_id"]
+            isOneToOne: false
+            referencedRelation: "nfos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_notifications: {
+        Row: {
+          created_at: string
+          id: string
+          notification_id: string | null
+          read_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          notification_id?: string | null
+          read_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          notification_id?: string | null
+          read_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_notifications_notification_id_fkey"
+            columns: ["notification_id"]
+            isOneToOne: false
+            referencedRelation: "notifications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -498,21 +1051,25 @@ export type Database = {
   }
 }
 
-type DefaultSchema = Database[Extract<keyof Database, "public">]
+type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">
+
+type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, "public">]
 
 export type Tables<
   DefaultSchemaTableNameOrOptions extends
     | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
-    | { schema: keyof Database },
+    | { schema: keyof DatabaseWithoutInternals },
   TableName extends DefaultSchemaTableNameOrOptions extends {
-    schema: keyof Database
+    schema: keyof DatabaseWithoutInternals
   }
-    ? keyof (Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
-        Database[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
+    ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+        DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
     : never = never,
-> = DefaultSchemaTableNameOrOptions extends { schema: keyof Database }
-  ? (Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
-      Database[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+      DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
       Row: infer R
     }
     ? R
@@ -530,14 +1087,16 @@ export type Tables<
 export type TablesInsert<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
-    | { schema: keyof Database },
+    | { schema: keyof DatabaseWithoutInternals },
   TableName extends DefaultSchemaTableNameOrOptions extends {
-    schema: keyof Database
+    schema: keyof DatabaseWithoutInternals
   }
-    ? keyof Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
     : never = never,
-> = DefaultSchemaTableNameOrOptions extends { schema: keyof Database }
-  ? Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
       Insert: infer I
     }
     ? I
@@ -553,14 +1112,16 @@ export type TablesInsert<
 export type TablesUpdate<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
-    | { schema: keyof Database },
+    | { schema: keyof DatabaseWithoutInternals },
   TableName extends DefaultSchemaTableNameOrOptions extends {
-    schema: keyof Database
+    schema: keyof DatabaseWithoutInternals
   }
-    ? keyof Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
     : never = never,
-> = DefaultSchemaTableNameOrOptions extends { schema: keyof Database }
-  ? Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
       Update: infer U
     }
     ? U
@@ -576,14 +1137,16 @@ export type TablesUpdate<
 export type Enums<
   DefaultSchemaEnumNameOrOptions extends
     | keyof DefaultSchema["Enums"]
-    | { schema: keyof Database },
+    | { schema: keyof DatabaseWithoutInternals },
   EnumName extends DefaultSchemaEnumNameOrOptions extends {
-    schema: keyof Database
+    schema: keyof DatabaseWithoutInternals
   }
-    ? keyof Database[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
+    ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
     : never = never,
-> = DefaultSchemaEnumNameOrOptions extends { schema: keyof Database }
-  ? Database[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
+> = DefaultSchemaEnumNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
   : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
     ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
     : never
@@ -591,14 +1154,16 @@ export type Enums<
 export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
     | keyof DefaultSchema["CompositeTypes"]
-    | { schema: keyof Database },
+    | { schema: keyof DatabaseWithoutInternals },
   CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
-    schema: keyof Database
+    schema: keyof DatabaseWithoutInternals
   }
-    ? keyof Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
+    ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
     : never = never,
-> = PublicCompositeTypeNameOrOptions extends { schema: keyof Database }
-  ? Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
+> = PublicCompositeTypeNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
   : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
     ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
     : never

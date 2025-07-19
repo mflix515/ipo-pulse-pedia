@@ -19,6 +19,9 @@ import Register from "./pages/Register";
 import Profile from "./pages/Profile";
 import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";
+import MainboardIPO from "./pages/MainboardIPO";
+import SMEIPO from "./pages/SMEIPO";
+import NFO from "./pages/NFO";
 
 const queryClient = new QueryClient();
 
@@ -32,6 +35,9 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/ipo/:id" element={<IPODetails />} />
+            <Route path="/mainboard-ipo" element={<MainboardIPO />} />
+            <Route path="/sme-ipo" element={<SMEIPO />} />
+            <Route path="/nfo" element={<NFO />} />
             <Route path="/calculator" element={<Calculator />} />
             <Route path="/broker-comparison" element={<BrokerComparison />} />
             <Route path="/blog" element={<Blog />} />
