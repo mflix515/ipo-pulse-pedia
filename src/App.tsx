@@ -22,6 +22,12 @@ import NotFound from "./pages/NotFound";
 import MainboardIPO from "./pages/MainboardIPO";
 import SMEIPO from "./pages/SMEIPO";
 import NFO from "./pages/NFO";
+import Terms from "./pages/Terms";
+import Privacy from "./pages/Privacy";
+import Disclaimer from "./pages/Disclaimer";
+import Contact from "./pages/Contact";
+import Performance from "./pages/Performance";
+import MarketAnalysis from "./pages/MarketAnalysis";
 
 const queryClient = new QueryClient();
 
@@ -49,6 +55,12 @@ const App = () => (
             <Route path="/register" element={<Register />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/crm-admin/*" element={<Admin />} />
+            <Route path="/terms" element={<Terms />} />
+            <Route path="/privacy" element={<Privacy />} />
+            <Route path="/disclaimer" element={<Disclaimer />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/performance" element={<Performance />} />
+            <Route path="/analysis" element={<MarketAnalysis />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

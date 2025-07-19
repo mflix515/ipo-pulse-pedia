@@ -79,20 +79,20 @@ const Navbar = () => {
       label: 'IPO',
       icon: TrendingUp,
       items: [
-        { label: 'Mainboard IPO', link: '/?type=mainboard' },
-        { label: 'SME IPO', link: '/?type=sme' },
+        { label: 'Mainboard IPO', link: '/mainboard-ipo' },
+        { label: 'SME IPO', link: '/sme-ipo' },
         { label: 'IPO Calendar', link: '/calendar' },
         { label: 'IPO Performance', link: '/performance' }
       ]
     },
     {
-      id: 'smeipo',
-      label: 'SME IPO',
+      id: 'nfo',
+      label: 'NFO',
       icon: Building2,
       items: [
-        { label: 'Current SME IPOs', link: '/?type=sme&status=open' },
-        { label: 'Upcoming SME IPOs', link: '/?type=sme&status=upcoming' },
-        { label: 'SME Performance', link: '/performance?type=sme' }
+        { label: 'Current NFOs', link: '/nfo?status=open' },
+        { label: 'Upcoming NFOs', link: '/nfo?status=upcoming' },
+        { label: 'NFO Performance', link: '/nfo?status=allotted' }
       ]
     },
     {
@@ -113,16 +113,6 @@ const Navbar = () => {
         { label: 'Market News', link: '/news' },
         { label: 'Market Analysis', link: '/analysis' },
         { label: 'Trading Tips', link: '/tips' }
-      ]
-    },
-    {
-      id: 'nri',
-      label: 'NRI',
-      icon: Globe,
-      items: [
-        { label: 'NRI Trading Account', link: '/nri-trading' },
-        { label: 'NRI Investment Guide', link: '/nri-guide' },
-        { label: 'NRI Tax Information', link: '/nri-tax' }
       ]
     },
     {
