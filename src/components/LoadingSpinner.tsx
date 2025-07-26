@@ -60,21 +60,9 @@ const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
       {/* Progress bar */}
       <div className="w-48 bg-gray-200 rounded-full h-2 mt-4">
         <div 
-          className="bg-blue-600 h-2 rounded-full animate-pulse"
-          style={{
-            width: '70%',
-            animation: 'progress 2s ease-in-out infinite alternate'
-          }}
+          className="bg-blue-600 h-2 rounded-full animate-pulse animate-progress"
         ></div>
       </div>
-
-      <style jsx>{`
-        @keyframes progress {
-          0% { width: 20%; }
-          50% { width: 70%; }
-          100% { width: 90%; }
-        }
-      `}</style>
     </div>
   );
 };
