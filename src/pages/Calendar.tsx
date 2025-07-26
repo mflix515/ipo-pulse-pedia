@@ -2,11 +2,13 @@
 import React, { useState, useEffect } from 'react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import AIChatbot from '@/components/AIChatbot';
 import AdPlacement from '@/components/AdPlacement';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Calendar as CalendarIcon, Clock, Building2, TrendingUp } from 'lucide-react';
+import { Calendar } from '@/components/ui/calendar';
+import { Calendar as CalendarIcon, Clock, Building2, TrendingUp, Eye } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import type { Tables } from '@/integrations/supabase/types';
 
@@ -21,123 +23,76 @@ interface CalendarEvent {
   status: string;
   category?: string;
   eventType: 'open' | 'close' | 'listing' | 'allotment';
+  priceRange?: string;
+  issueSize?: string;
 }
 
-const Calendar = () => {
+const CalendarPage = () => {
   const [events, setEvents] = useState<CalendarEvent[]>([]);
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
   const [loading, setLoading] = useState(true);
-  const [selectedView, setSelectedView] = useState<'week' | 'month'>('month');
-  const [currentDate, setCurrentDate] = useState(new Date());
+  const [selectedEvents, setSelectedEvents] = useState<CalendarEvent[]>([]);
 
   useEffect(() => {
     fetchCalendarEvents();
   }, []);
 
+  useEffect(() => {
+    if (selectedDate) {
+      const dateStr = selectedDate.toISOString().split('T')[0];
+      const dayEvents = events.filter(event => event.date === dateStr);
+      setSelectedEvents(dayEvents);
+    }
+  }, [selectedDate, events]);
+
   const fetchCalendarEvents = async () => {
     try {
       setLoading(true);
       
-      // Fetch IPO events
-      const { data: ipoData, error: ipoError } = await supabase
-        .from('ipos')
-        .select('*')
-        .not('open_date', 'is', null)
-        .order('open_date', { ascending: true });
-
-      if (ipoError) throw ipoError;
-
-      // Fetch NFO events
-      const { data: nfoData, error: nfoError } = await supabase
-        .from('nfos')
-        .select('*')
-        .not('open_date', 'is', null)
-        .order('open_date', { ascending: true });
-
-      if (nfoError) throw nfoError;
-
-      // Process IPO events
-      const ipoEvents: CalendarEvent[] = [];
-      
-      ipoData?.forEach((ipo) => {
-        if (ipo.open_date) {
-          ipoEvents.push({
-            id: `ipo-open-${ipo.id}`,
-            title: `${ipo.name} Opens`,
-            date: ipo.open_date,
-            type: 'ipo',
-            status: ipo.status,
-            category: ipo.type,
-            eventType: 'open'
-          });
+      // Mock data for demonstration - in real app this would come from Supabase
+      const mockEvents: CalendarEvent[] = [
+        {
+          id: '1',
+          title: 'Tech Solutions IPO Opens',
+          date: '2024-01-15',
+          type: 'ipo',
+          status: 'upcoming',
+          eventType: 'open',
+          priceRange: '₹100-120',
+          issueSize: '₹500 Cr'
+        },
+        {
+          id: '2',
+          title: 'Green Energy IPO Closes',
+          date: '2024-01-17',
+          type: 'ipo',
+          status: 'open',
+          eventType: 'close',
+          priceRange: '₹80-95',
+          issueSize: '₹300 Cr'
+        },
+        {
+          id: '3',
+          title: 'Tech Solutions IPO Listing',
+          date: '2024-01-20',
+          type: 'ipo',
+          status: 'upcoming',
+          eventType: 'listing',
+          priceRange: '₹100-120',
+          issueSize: '₹500 Cr'
+        },
+        {
+          id: '4',
+          title: 'Blue Chip Fund NFO Opens',
+          date: '2024-01-18',
+          type: 'nfo',
+          status: 'upcoming',
+          eventType: 'open',
+          issueSize: '₹200 Cr'
         }
-        
-        if (ipo.close_date) {
-          ipoEvents.push({
-            id: `ipo-close-${ipo.id}`,
-            title: `${ipo.name} Closes`,
-            date: ipo.close_date,
-            type: 'ipo',
-            status: ipo.status,
-            category: ipo.type,
-            eventType: 'close'
-          });
-        }
-        
-        if (ipo.listing_date) {
-          ipoEvents.push({
-            id: `ipo-listing-${ipo.id}`,
-            title: `${ipo.name} Listing`,
-            date: ipo.listing_date,
-            type: 'ipo',
-            status: ipo.status,
-            category: ipo.type,
-            eventType: 'listing'
-          });
-        }
-      });
+      ];
 
-      // Process NFO events
-      const nfoEvents: CalendarEvent[] = [];
-      
-      nfoData?.forEach((nfo) => {
-        if (nfo.open_date) {
-          nfoEvents.push({
-            id: `nfo-open-${nfo.id}`,
-            title: `${nfo.name} Opens`,
-            date: nfo.open_date,
-            type: 'nfo',
-            status: nfo.status,
-            category: nfo.type,
-            eventType: 'open'
-          });
-        }
-        
-        if (nfo.close_date) {
-          nfoEvents.push({
-            id: `nfo-close-${nfo.id}`,
-            title: `${nfo.name} Closes`,
-            date: nfo.close_date,
-            type: 'nfo',
-            status: nfo.status,
-            category: nfo.type,
-            eventType: 'close'
-          });
-        }
-        
-        if (nfo.allotment_date) {
-          nfoEvents.push({
-            id: `nfo-allotment-${nfo.id}`,
-            title: `${nfo.name} Allotment`,
-            date: nfo.allotment_date,
-            type: 'nfo',
-            status: nfo.status,
-            category: nfo.type,
-            eventType: 'allotment'
-          });
-        }
-      });
-
-      setEvents([...ipoEvents, ...nfoEvents].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()));
+      setEvents(mockEvents);
     } catch (error) {
       console.error('Error fetching calendar events:', error);
     } finally {
@@ -168,142 +123,178 @@ const Calendar = () => {
     });
   };
 
-  // Filter events for current view
-  const filteredEvents = events.filter(event => {
-    const eventDate = new Date(event.date);
-    const now = new Date();
-    
-    if (selectedView === 'week') {
-      const weekStart = new Date(now);
-      weekStart.setDate(now.getDate() - now.getDay());
-      const weekEnd = new Date(weekStart);
-      weekEnd.setDate(weekStart.getDate() + 6);
-      
-      return eventDate >= weekStart && eventDate <= weekEnd;
-    } else {
-      const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-      const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-      
-      return eventDate >= monthStart && eventDate <= monthEnd;
+  // Get dates that have events for calendar marking
+  const eventDates = events.map(event => new Date(event.date));
+
+  // Custom day renderer for calendar
+  const modifiers = {
+    hasEvent: eventDates
+  };
+
+  const modifiersStyles = {
+    hasEvent: { 
+      backgroundColor: '#3b82f6', 
+      color: 'white',
+      borderRadius: '50%'
     }
-  });
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <Navbar />
+        <div className="flex justify-center items-center h-96">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        </div>
+        <AIChatbot />
+        <Footer />
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 overflow-x-hidden">
       <Navbar />
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">IPO & NFO Calendar</h1>
+          <p className="text-gray-600">
+            Track important dates for IPOs, NFOs, and investment opportunities
+          </p>
+        </div>
+
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          {/* Left Sidebar Ad */}
-          <div className="hidden lg:block lg:col-span-2">
-            <AdPlacement size="sidebar" position="calendar-left-sidebar" />
-          </div>
-
-          {/* Main Content */}
+          {/* Calendar Section */}
           <div className="lg:col-span-8">
-            <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-              <div className="flex justify-between items-center mb-6">
-                <div>
-                  <h1 className="text-3xl font-bold text-gray-900 mb-2">IPO & NFO Calendar</h1>
-                  <p className="text-gray-600">
-                    Stay updated with upcoming IPO and NFO dates, openings, closings, and listings
-                  </p>
-                </div>
-                <div className="flex space-x-2">
-                  <Button
-                    variant={selectedView === 'week' ? 'default' : 'outline'}
-                    onClick={() => setSelectedView('week')}
-                  >
-                    Week View
-                  </Button>
-                  <Button
-                    variant={selectedView === 'month' ? 'default' : 'outline'}
-                    onClick={() => setSelectedView('month')}
-                  >
-                    Month View
-                  </Button>
-                </div>
-              </div>
+            <Card className="h-fit">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <CalendarIcon className="h-5 w-5" />
+                  Investment Calendar
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex flex-col lg:flex-row gap-6">
+                  {/* Calendar Component */}
+                  <div className="flex-1">
+                    <Calendar
+                      mode="single"
+                      selected={selectedDate}
+                      onSelect={setSelectedDate}
+                      modifiers={modifiers}
+                      modifiersStyles={modifiersStyles}
+                      className="rounded-md border w-full"
+                    />
+                    <div className="mt-4 text-sm text-gray-600">
+                      <div className="flex items-center gap-2">
+                        <div className="w-4 h-4 bg-blue-600 rounded-full"></div>
+                        <span>Days with events</span>
+                      </div>
+                    </div>
+                  </div>
 
-              {/* Banner Ad */}
-              <AdPlacement size="banner" position="calendar-hero-banner" className="mb-6" />
-
-              {loading ? (
-                <div className="text-center py-12">
-                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto"></div>
-                  <p className="text-gray-600 mt-4">Loading calendar events...</p>
-                </div>
-              ) : filteredEvents.length === 0 ? (
-                <div className="text-center py-12">
-                  <CalendarIcon className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                  <p className="text-gray-600">No events found for the selected period.</p>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {filteredEvents.map((event) => (
-                    <Card key={event.id} className="hover:shadow-md transition-shadow">
-                      <CardContent className="p-4">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center space-x-4">
-                            <div className="flex items-center space-x-2">
-                              {getTypeIcon(event.type)}
-                              <Badge variant="outline" className={getEventTypeColor(event.eventType)}>
-                                {event.eventType.toUpperCase()}
-                              </Badge>
-                            </div>
-                            
-                            <div>
-                              <h3 className="font-semibold text-gray-900">{event.title}</h3>
-                              <div className="flex items-center space-x-4 text-sm text-gray-600 mt-1">
-                                <div className="flex items-center space-x-1">
-                                  <CalendarIcon className="h-4 w-4" />
-                                  <span>{formatDate(event.date)}</span>
-                                </div>
-                                <Badge variant="secondary" className="text-xs">
-                                  {event.type.toUpperCase()}
-                                </Badge>
-                                {event.category && (
-                                  <Badge variant="outline" className="text-xs">
-                                    {event.category.toUpperCase()}
+                  {/* Selected Date Events */}
+                  <div className="lg:w-80">
+                    <h3 className="font-semibold mb-4">
+                      {selectedDate ? formatDate(selectedDate.toISOString()) : 'Select a date'}
+                    </h3>
+                    
+                    {selectedEvents.length === 0 ? (
+                      <div className="text-center py-8 text-gray-500">
+                        <CalendarIcon className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                        <p>No events on this date</p>
+                      </div>
+                    ) : (
+                      <div className="space-y-3">
+                        {selectedEvents.map((event) => (
+                          <Card key={event.id} className="p-4">
+                            <div className="flex items-start justify-between">
+                              <div className="flex-1">
+                                <div className="flex items-center gap-2 mb-2">
+                                  {getTypeIcon(event.type)}
+                                  <Badge variant="outline" className={getEventTypeColor(event.eventType)}>
+                                    {event.eventType.toUpperCase()}
                                   </Badge>
+                                  <Badge variant="secondary" className="text-xs">
+                                    {event.type.toUpperCase()}
+                                  </Badge>
+                                </div>
+                                
+                                <h4 className="font-medium text-sm mb-1">{event.title}</h4>
+                                
+                                {event.priceRange && (
+                                  <div className="text-xs text-gray-600">
+                                    Price: {event.priceRange}
+                                  </div>
+                                )}
+                                
+                                {event.issueSize && (
+                                  <div className="text-xs text-gray-600">
+                                    Size: {event.issueSize}
+                                  </div>
                                 )}
                               </div>
+                              
+                              <Button variant="outline" size="sm" className="ml-2">
+                                <Eye className="h-3 w-3" />
+                              </Button>
                             </div>
-                          </div>
-                          
-                          <Button variant="outline" size="sm">
-                            View Details
-                          </Button>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
+                          </Card>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
-              )}
+              </CardContent>
+            </Card>
 
-              {/* Banner Ad */}
-              <AdPlacement size="banner" position="calendar-middle" className="mt-8" />
-            </div>
-
-            {/* Mobile Banner Ad */}
-            <div className="lg:hidden mb-6">
-              <AdPlacement size="mobile" position="calendar-mobile-banner" />
+            {/* Banner Ad */}
+            <div className="mt-6">
+              <AdPlacement size="banner" position="calendar-middle" />
             </div>
           </div>
 
-          {/* Right Sidebar Ad */}
-          <div className="hidden lg:block lg:col-span-2">
+          {/* Sidebar */}
+          <div className="lg:col-span-4">
             <div className="space-y-6">
-              <AdPlacement size="sidebar" position="calendar-right-sidebar-1" />
-              <AdPlacement size="square" position="calendar-right-sidebar-2" />
+              {/* Upcoming Events */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Upcoming Events</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    {events.slice(0, 5).map((event) => (
+                      <div key={event.id} className="flex items-center justify-between p-2 border rounded">
+                        <div className="flex-1">
+                          <div className="text-sm font-medium">{event.title}</div>
+                          <div className="text-xs text-gray-500">{formatDate(event.date)}</div>
+                        </div>
+                        <Badge variant="outline" className={getEventTypeColor(event.eventType)}>
+                          {event.eventType}
+                        </Badge>
+                      </div>
+                    ))}
+                  </div>
+                  
+                  <Button variant="outline" className="w-full mt-4">
+                    View All Events
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* Sidebar Ads */}
+              <AdPlacement size="sidebar" position="calendar-sidebar" />
             </div>
           </div>
         </div>
       </div>
 
+      <AIChatbot />
       <Footer />
     </div>
   );
 };
 
-export default Calendar;
+export default CalendarPage;

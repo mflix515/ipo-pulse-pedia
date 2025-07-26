@@ -1,13 +1,14 @@
 
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, BarChart3, Search, ChevronDown } from 'lucide-react';
+import { Menu, X, BarChart3, Search, ChevronDown, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
+  const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const location = useLocation();
 
   const navigation = [
@@ -25,31 +26,40 @@ const Navbar = () => {
     { name: 'Calculator', href: '/calculator' },
     { name: 'Calendar', href: '/calendar' },
     { name: 'Analysis', href: '/analysis' },
+    { name: 'Community', href: '/community' },
     { name: 'Blog', href: '/blog' },
     { name: 'News', href: '/news' }
   ];
 
   const isActive = (path: string) => location.pathname === path;
 
+  const handleDropdownToggle = (dropdownName: string) => {
+    setOpenDropdown(openDropdown === dropdownName ? null : dropdownName);
+  };
+
+  const closeAllDropdowns = () => {
+    setOpenDropdown(null);
+  };
+
   return (
-    <nav className="bg-white shadow-sm border-b sticky top-0 z-40">
+    <nav className="bg-white shadow-sm border-b sticky top-0 z-50 w-full overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           {/* Logo */}
-          <div className="flex items-center">
-            <Link to="/" className="flex items-center space-x-2">
+          <div className="flex items-center flex-shrink-0">
+            <Link to="/" className="flex items-center space-x-2" onClick={closeAllDropdowns}>
               <div className="bg-blue-600 text-white p-2 rounded-lg">
                 <BarChart3 className="h-5 w-5" />
               </div>
-              <span className="text-xl font-bold text-gray-900 hidden sm:block">IPO-Pedia</span>
-              <span className="text-lg font-bold text-gray-900 sm:hidden">IPO</span>
+              <span className="text-xl font-bold text-gray-900 hidden sm:block">Investo-Pedia</span>
+              <span className="text-lg font-bold text-gray-900 sm:hidden">Investo</span>
             </Link>
           </div>
 
           {/* Desktop Navigation */}
           <div className="hidden lg:flex items-center space-x-1">
             {navigation.map((item) => (
-              <div key={item.name} className="relative group">
+              <div key={item.name} className="relative">
                 {item.dropdown ? (
                   <div className="relative">
                     <Button
@@ -59,16 +69,27 @@ const Navbar = () => {
                           ? 'text-blue-600 bg-blue-50'
                           : 'text-gray-700 hover:text-blue-600'
                       }`}
+                      onMouseEnter={() => handleDropdownToggle(item.name)}
+                      onMouseLeave={() => setOpenDropdown(null)}
                     >
                       <span>{item.name}</span>
                       <ChevronDown className="h-3 w-3" />
                     </Button>
-                    <div className="absolute top-full left-0 mt-1 w-48 bg-white border shadow-lg rounded-md opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                    
+                    {/* Dropdown Menu */}
+                    <div 
+                      className={`absolute top-full left-0 mt-1 w-48 bg-white border shadow-lg rounded-md transition-all duration-200 z-50 dropdown-menu ${
+                        openDropdown === item.name ? 'opacity-100 visible' : 'opacity-0 invisible'
+                      }`}
+                      onMouseEnter={() => setOpenDropdown(item.name)}
+                      onMouseLeave={() => setOpenDropdown(null)}
+                    >
                       {item.dropdown.map((subItem) => (
                         <Link
                           key={subItem.name}
                           to={subItem.href}
-                          className={`block px-4 py-2 text-sm hover:bg-gray-50 ${
+                          onClick={closeAllDropdowns}
+                          className={`block px-4 py-2 text-sm hover:bg-gray-50 transition-colors ${
                             isActive(subItem.href) ? 'text-blue-600 bg-blue-50' : 'text-gray-700'
                           }`}
                         >
@@ -80,6 +101,7 @@ const Navbar = () => {
                 ) : (
                   <Link
                     to={item.href}
+                    onClick={closeAllDropdowns}
                     className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                       isActive(item.href)
                         ? 'text-blue-600 bg-blue-50'
@@ -155,7 +177,7 @@ const Navbar = () => {
 
       {/* Mobile Navigation Menu */}
       {isOpen && (
-        <div className="lg:hidden bg-white border-t">
+        <div className="lg:hidden bg-white border-t mobile-menu">
           <div className="px-4 pt-2 pb-3 space-y-1 max-h-96 overflow-y-auto">
             {navigation.map((item) => (
               <div key={item.name}>
