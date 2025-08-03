@@ -25,10 +25,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Check for stored user data
-    const storedUser = localStorage.getItem('user');
+    // Check for stored user data on app load
+    const storedUser = localStorage.getItem('wealthprism_user');
     if (storedUser) {
-      setUser(JSON.parse(storedUser));
+      try {
+        const userData = JSON.parse(storedUser);
+        setUser(userData);
+      } catch (error) {
+        console.error('Error parsing stored user data:', error);
+        localStorage.removeItem('wealthprism_user');
+      }
     }
     setIsLoading(false);
   }, []);
@@ -40,15 +46,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       await new Promise(resolve => setTimeout(resolve, 500));
       
       const userData = {
-        id: '1',
-        name: email === 'admin@ipopedia.com' ? 'Admin User' : 'John Doe',
+        id: Date.now().toString(),
+        name: email === 'admin@wealthprism.com' ? 'Admin User' : 'John Doe',
         email,
         mobile: '9876543210',
-        isAdmin: email === 'admin@ipopedia.com' || email.includes('admin')
+        isAdmin: email === 'admin@wealthprism.com' || email.includes('admin')
       };
       
       setUser(userData);
-      localStorage.setItem('user', JSON.stringify(userData));
+      localStorage.setItem('wealthprism_user', JSON.stringify(userData));
     } catch (error) {
       console.error('Login error:', error);
       throw error;
@@ -70,7 +76,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       };
       
       setUser(newUser);
-      localStorage.setItem('user', JSON.stringify(newUser));
+      localStorage.setItem('wealthprism_user', JSON.stringify(newUser));
     } finally {
       setIsLoading(false);
     }
@@ -78,7 +84,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const logout = () => {
     setUser(null);
-    localStorage.removeItem('user');
+    localStorage.removeItem('wealthprism_user');
   };
 
   return (

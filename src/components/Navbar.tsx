@@ -1,236 +1,195 @@
 
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, BarChart3, Search, ChevronDown, Users } from 'lucide-react';
+import { Menu, X, BarChart3, User, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { useAuth } from '@/contexts/AuthContext';
 
 const Navbar = () => {
-  const [isOpen, setIsOpen] = useState(false);
-  const [showSearch, setShowSearch] = useState(false);
-  const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [showUserMenu, setShowUserMenu] = useState(false);
   const location = useLocation();
-
-  const navigation = [
-    { name: 'Home', href: '/' },
-    { 
-      name: 'IPO', 
-      href: '/mainboard-ipo',
-      dropdown: [
-        { name: 'Mainboard IPO', href: '/mainboard-ipo' },
-        { name: 'SME IPO', href: '/sme-ipo' }
-      ]
-    },
-    { name: 'NFO', href: '/nfo' },
-    { name: 'Bonds', href: '/bonds' },
-    { name: 'Calculator', href: '/calculator' },
-    { name: 'Calendar', href: '/calendar' },
-    { name: 'Analysis', href: '/analysis' },
-    { name: 'Community', href: '/community' },
-    { name: 'Blog', href: '/blog' },
-    { name: 'News', href: '/news' }
-  ];
+  const { user, logout } = useAuth();
 
   const isActive = (path: string) => location.pathname === path;
 
-  const handleDropdownToggle = (dropdownName: string) => {
-    setOpenDropdown(openDropdown === dropdownName ? null : dropdownName);
-  };
-
-  const closeAllDropdowns = () => {
-    setOpenDropdown(null);
+  const handleLogout = () => {
+    logout();
+    setShowUserMenu(false);
   };
 
   return (
-    <nav className="bg-white shadow-sm border-b sticky top-0 z-50 w-full overflow-hidden">
+    <nav className="bg-white shadow-lg border-b-2 border-blue-100 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-16">
+        <div className="flex justify-between items-center h-16">
           {/* Logo */}
-          <div className="flex items-center flex-shrink-0">
-            <Link to="/" className="flex items-center space-x-2" onClick={closeAllDropdowns}>
-              <div className="bg-blue-600 text-white p-2 rounded-lg">
-                <BarChart3 className="h-5 w-5" />
-              </div>
-              <span className="text-xl font-bold text-gray-900 hidden sm:block">Wealth-Prism</span>
-              <span className="text-lg font-bold text-gray-900 sm:hidden">Wealth-Prism</span>
-            </Link>
-          </div>
+          <Link to="/" className="flex items-center space-x-3">
+            <div className="bg-gradient-to-r from-blue-600 to-green-500 text-white p-2 rounded-lg shadow-lg">
+              <BarChart3 className="h-6 w-6" />
+            </div>
+            <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-green-500 bg-clip-text text-transparent">
+              Wealth-Prism
+            </span>
+          </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden lg:flex items-center space-x-1">
-            {navigation.map((item) => (
-              <div key={item.name} className="relative">
-                {item.dropdown ? (
-                  <div className="relative">
-                    <Button
-                      variant="ghost"
-                      className={`flex items-center space-x-1 ${
-                        item.dropdown.some(sub => isActive(sub.href))
-                          ? 'text-blue-600 bg-blue-50'
-                          : 'text-gray-700 hover:text-blue-600'
-                      }`}
-                      onMouseEnter={() => handleDropdownToggle(item.name)}
-                      onMouseLeave={() => setOpenDropdown(null)}
+          <div className="hidden lg:flex items-center space-x-6">
+            <div className="relative group">
+              <button className="flex items-center space-x-1 text-gray-700 hover:text-blue-600 font-medium transition-colors">
+                <span>IPOs</span>
+                <ChevronDown className="h-4 w-4" />
+              </button>
+              <div className="absolute top-full left-0 mt-2 w-48 bg-white rounded-lg shadow-xl border opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                <Link to="/mainboard-ipo" className="block px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600 first:rounded-t-lg">
+                  Mainboard IPO
+                </Link>
+                <Link to="/sme-ipo" className="block px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600 last:rounded-b-lg">
+                  SME IPO
+                </Link>
+              </div>
+            </div>
+
+            <Link to="/nfo" className={`font-medium transition-colors ${isActive('/nfo') ? 'text-blue-600' : 'text-gray-700 hover:text-blue-600'}`}>
+              NFO
+            </Link>
+            <Link to="/bonds" className={`font-medium transition-colors ${isActive('/bonds') ? 'text-blue-600' : 'text-gray-700 hover:text-blue-600'}`}>
+              Bonds
+            </Link>
+            <Link to="/performance" className={`font-medium transition-colors ${isActive('/performance') ? 'text-blue-600' : 'text-gray-700 hover:text-blue-600'}`}>
+              Performance
+            </Link>
+            <Link to="/calendar" className={`font-medium transition-colors ${isActive('/calendar') ? 'text-blue-600' : 'text-gray-700 hover:text-blue-600'}`}>
+              Calendar
+            </Link>
+            <Link to="/news" className={`font-medium transition-colors ${isActive('/news') ? 'text-blue-600' : 'text-gray-700 hover:text-blue-600'}`}>
+              News
+            </Link>
+            <Link to="/calculator" className={`font-medium transition-colors ${isActive('/calculator') ? 'text-blue-600' : 'text-gray-700 hover:text-blue-600'}`}>
+              Calculators
+            </Link>
+            <Link to="/community" className={`font-medium transition-colors ${isActive('/community') ? 'text-blue-600' : 'text-gray-700 hover:text-blue-600'}`}>
+              Community
+            </Link>
+
+            {/* User Menu */}
+            {user ? (
+              <div className="relative">
+                <button 
+                  onClick={() => setShowUserMenu(!showUserMenu)}
+                  className="flex items-center space-x-2 text-gray-700 hover:text-blue-600 transition-colors"
+                >
+                  <User className="h-5 w-5" />
+                  <span className="font-medium">{user.name}</span>
+                  <ChevronDown className="h-4 w-4" />
+                </button>
+                
+                {showUserMenu && (
+                  <div className="absolute right-0 top-full mt-2 w-48 bg-white rounded-lg shadow-xl border z-50">
+                    <Link to="/profile" className="block px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600 first:rounded-t-lg">
+                      Profile
+                    </Link>
+                    {user.isAdmin && (
+                      <Link to="/crm-admin" className="block px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600">
+                        Admin Panel
+                      </Link>
+                    )}
+                    <button 
+                      onClick={handleLogout}
+                      className="w-full text-left px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600 last:rounded-b-lg"
                     >
-                      <span>{item.name}</span>
-                      <ChevronDown className="h-3 w-3" />
-                    </Button>
-                    
-                    {/* Dropdown Menu */}
-                    <div 
-                      className={`absolute top-full left-0 mt-1 w-48 bg-white border shadow-lg rounded-md transition-all duration-200 z-50 dropdown-menu ${
-                        openDropdown === item.name ? 'opacity-100 visible' : 'opacity-0 invisible'
-                      }`}
-                      onMouseEnter={() => setOpenDropdown(item.name)}
-                      onMouseLeave={() => setOpenDropdown(null)}
-                    >
-                      {item.dropdown.map((subItem) => (
-                        <Link
-                          key={subItem.name}
-                          to={subItem.href}
-                          onClick={closeAllDropdowns}
-                          className={`block px-4 py-2 text-sm hover:bg-gray-50 transition-colors ${
-                            isActive(subItem.href) ? 'text-blue-600 bg-blue-50' : 'text-gray-700'
-                          }`}
-                        >
-                          {subItem.name}
-                        </Link>
-                      ))}
-                    </div>
+                      Logout
+                    </button>
                   </div>
-                ) : (
-                  <Link
-                    to={item.href}
-                    onClick={closeAllDropdowns}
-                    className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                      isActive(item.href)
-                        ? 'text-blue-600 bg-blue-50'
-                        : 'text-gray-700 hover:text-blue-600 hover:bg-gray-50'
-                    }`}
-                  >
-                    {item.name}
-                  </Link>
                 )}
               </div>
-            ))}
+            ) : (
+              <div className="flex items-center space-x-3">
+                <Link to="/login">
+                  <Button variant="outline" className="border-blue-600 text-blue-600 hover:bg-blue-50">
+                    Login
+                  </Button>
+                </Link>
+                <Link to="/register">
+                  <Button className="bg-gradient-to-r from-blue-600 to-green-500 hover:from-blue-700 hover:to-green-600 text-white">
+                    Sign Up
+                  </Button>
+                </Link>
+              </div>
+            )}
           </div>
 
-          {/* Search and Mobile menu button */}
-          <div className="flex items-center space-x-2">
-            {/* Search Toggle */}
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setShowSearch(!showSearch)}
-              className="lg:hidden"
+          {/* Mobile menu button */}
+          <div className="lg:hidden">
+            <button
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              className="text-gray-700 hover:text-blue-600 transition-colors"
             >
-              <Search className="h-4 w-4" />
-            </Button>
-
-            {/* Desktop Search */}
-            <div className="hidden lg:block">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                <Input
-                  type="text"
-                  placeholder="Search IPOs, NFOs, Bonds..."
-                  className="pl-10 pr-4 py-2 w-64 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
-                />
-              </div>
-            </div>
-
-            {/* Login/Register */}
-            <div className="hidden sm:flex items-center space-x-2">
-              <Link to="/login">
-                <Button variant="ghost" size="sm">Login</Button>
-              </Link>
-              <Link to="/register">
-                <Button size="sm">Register</Button>
-              </Link>
-            </div>
-
-            {/* Mobile menu button */}
-            <Button
-              variant="ghost"
-              onClick={() => setIsOpen(!isOpen)}
-              className="lg:hidden"
-            >
-              {isOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-            </Button>
+              {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            </button>
           </div>
         </div>
 
-        {/* Mobile Search */}
-        {showSearch && (
-          <div className="lg:hidden pb-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-              <Input
-                type="text"
-                placeholder="Search IPOs, NFOs, Bonds..."
-                className="pl-10 pr-4 py-2 w-full"
-              />
-            </div>
+        {/* Mobile Navigation */}
+        {isMenuOpen && (
+          <div className="lg:hidden border-t border-gray-200 py-4 space-y-2 bg-white">
+            <Link to="/mainboard-ipo" className="block py-2 text-gray-700 hover:text-blue-600 font-medium">
+              Mainboard IPO
+            </Link>
+            <Link to="/sme-ipo" className="block py-2 text-gray-700 hover:text-blue-600 font-medium">
+              SME IPO
+            </Link>
+            <Link to="/nfo" className="block py-2 text-gray-700 hover:text-blue-600 font-medium">
+              NFO
+            </Link>
+            <Link to="/bonds" className="block py-2 text-gray-700 hover:text-blue-600 font-medium">
+              Bonds
+            </Link>
+            <Link to="/performance" className="block py-2 text-gray-700 hover:text-blue-600 font-medium">
+              Performance
+            </Link>
+            <Link to="/calendar" className="block py-2 text-gray-700 hover:text-blue-600 font-medium">
+              Calendar
+            </Link>
+            <Link to="/news" className="block py-2 text-gray-700 hover:text-blue-600 font-medium">
+              News
+            </Link>
+            <Link to="/calculator" className="block py-2 text-gray-700 hover:text-blue-600 font-medium">
+              Calculators
+            </Link>
+            <Link to="/community" className="block py-2 text-gray-700 hover:text-blue-600 font-medium">
+              Community
+            </Link>
+            
+            {user ? (
+              <div className="border-t border-gray-200 pt-2 space-y-2">
+                <Link to="/profile" className="block py-2 text-gray-700 hover:text-blue-600 font-medium">
+                  Profile
+                </Link>
+                {user.isAdmin && (
+                  <Link to="/crm-admin" className="block py-2 text-gray-700 hover:text-blue-600 font-medium">
+                    Admin Panel
+                  </Link>
+                )}
+                <button 
+                  onClick={handleLogout}
+                  className="block w-full text-left py-2 text-gray-700 hover:text-blue-600 font-medium"
+                >
+                  Logout
+                </button>
+              </div>
+            ) : (
+              <div className="border-t border-gray-200 pt-2 space-y-2">
+                <Link to="/login" className="block py-2 text-gray-700 hover:text-blue-600 font-medium">
+                  Login
+                </Link>
+                <Link to="/register" className="block py-2 text-gray-700 hover:text-blue-600 font-medium">
+                  Sign Up
+                </Link>
+              </div>
+            )}
           </div>
         )}
       </div>
-
-      {/* Mobile Navigation Menu */}
-      {isOpen && (
-        <div className="lg:hidden bg-white border-t mobile-menu">
-          <div className="px-4 pt-2 pb-3 space-y-1 max-h-96 overflow-y-auto">
-            {navigation.map((item) => (
-              <div key={item.name}>
-                {item.dropdown ? (
-                  <div>
-                    <div className="px-3 py-2 text-sm font-medium text-gray-700 border-b">
-                      {item.name}
-                    </div>
-                    {item.dropdown.map((subItem) => (
-                      <Link
-                        key={subItem.name}
-                        to={subItem.href}
-                        onClick={() => setIsOpen(false)}
-                        className={`block px-6 py-2 text-sm ${
-                          isActive(subItem.href)
-                            ? 'text-blue-600 bg-blue-50'
-                            : 'text-gray-600 hover:text-blue-600 hover:bg-gray-50'
-                        }`}
-                      >
-                        {subItem.name}
-                      </Link>
-                    ))}
-                  </div>
-                ) : (
-                  <Link
-                    to={item.href}
-                    onClick={() => setIsOpen(false)}
-                    className={`block px-3 py-2 text-sm font-medium ${
-                      isActive(item.href)
-                        ? 'text-blue-600 bg-blue-50'
-                        : 'text-gray-700 hover:text-blue-600 hover:bg-gray-50'
-                    }`}
-                  >
-                    {item.name}
-                  </Link>
-                )}
-              </div>
-            ))}
-            
-            {/* Mobile Login/Register */}
-            <div className="pt-4 border-t">
-              <div className="flex space-x-2">
-                <Link to="/login" className="flex-1" onClick={() => setIsOpen(false)}>
-                  <Button variant="outline" size="sm" className="w-full">Login</Button>
-                </Link>
-                <Link to="/register" className="flex-1" onClick={() => setIsOpen(false)}>
-                  <Button size="sm" className="w-full">Register</Button>
-                </Link>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </nav>
   );
 };

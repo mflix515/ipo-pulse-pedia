@@ -21,7 +21,7 @@ const Login = () => {
       await login(email, password);
       toast({
         title: "Login Successful",
-        description: "Welcome back to IPO-Pedia!",
+        description: "Welcome back to Wealth-Prism!",
       });
       navigate('/');
     } catch (error) {
@@ -34,27 +34,29 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center px-4">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 flex items-center justify-center px-4">
       <div className="max-w-md w-full">
         {/* Logo */}
         <div className="text-center mb-8">
-          <Link to="/" className="inline-flex items-center space-x-2">
-            <div className="bg-blue-600 text-white p-3 rounded-lg">
+          <Link to="/" className="inline-flex items-center space-x-3">
+            <div className="bg-gradient-to-r from-blue-600 to-green-500 text-white p-3 rounded-lg shadow-lg">
               <BarChart3 className="h-8 w-8" />
             </div>
-            <span className="text-2xl font-bold text-gray-900">IPO-Pedia</span>
+            <span className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-green-500 bg-clip-text text-transparent">
+              Wealth-Prism
+            </span>
           </Link>
         </div>
 
-        <Card className="shadow-xl">
-          <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl text-center">Welcome Back</CardTitle>
+        <Card className="shadow-xl border-0 bg-white/80 backdrop-blur-sm">
+          <CardHeader className="space-y-1 bg-gradient-to-r from-blue-50 to-green-50 rounded-t-lg">
+            <CardTitle className="text-2xl text-center text-gray-800">Welcome Back</CardTitle>
             <p className="text-center text-gray-600">Sign in to your account</p>
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-6">
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email" className="text-gray-700">Email</Label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
                   <Input
@@ -63,14 +65,14 @@ const Login = () => {
                     placeholder="Enter your email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="pl-10"
+                    className="pl-10 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                     required
                   />
                 </div>
               </div>
               
               <div>
-                <Label htmlFor="password">Password</Label>
+                <Label htmlFor="password" className="text-gray-700">Password</Label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
                   <Input
@@ -79,36 +81,40 @@ const Login = () => {
                     placeholder="Enter your password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="pl-10"
+                    className="pl-10 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                     required
                   />
                 </div>
               </div>
 
-              <Button type="submit" className="w-full" disabled={isLoading}>
+              <Button 
+                type="submit" 
+                className="w-full bg-gradient-to-r from-blue-600 to-green-500 hover:from-blue-700 hover:to-green-600 text-white"
+                disabled={isLoading}
+              >
                 {isLoading ? 'Signing In...' : 'Sign In'}
               </Button>
             </form>
 
             <div className="mt-6 text-center space-y-2">
-              <Link to="/forgot-password" className="text-blue-600 hover:underline text-sm">
+              <Link to="/forgot-password" className="text-blue-600 hover:text-blue-700 hover:underline text-sm">
                 Forgot your password?
               </Link>
               
               <p className="text-gray-600 text-sm">
                 Don't have an account?{' '}
-                <Link to="/register" className="text-blue-600 hover:underline font-medium">
+                <Link to="/register" className="text-blue-600 hover:text-blue-700 hover:underline font-medium">
                   Sign up here
                 </Link>
               </p>
             </div>
 
             {/* Demo Credentials */}
-            <div className="mt-6 p-4 bg-gray-50 rounded-lg">
-              <p className="text-sm text-gray-600 mb-2">Demo Credentials:</p>
-              <div className="text-xs space-y-1">
-                <p><strong>User:</strong> user@ipopedia.com / password123</p>
-                <p><strong>Admin:</strong> admin@ipopedia.com / admin123</p>
+            <div className="mt-6 p-4 bg-gradient-to-r from-blue-50 to-green-50 rounded-lg border border-blue-200">
+              <p className="text-sm text-gray-700 mb-2 font-medium">Demo Credentials:</p>
+              <div className="text-xs space-y-1 text-gray-600">
+                <p><strong>User:</strong> user@wealthprism.com / password123</p>
+                <p><strong>Admin:</strong> admin@wealthprism.com / admin123</p>
               </div>
             </div>
           </CardContent>

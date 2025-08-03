@@ -1,314 +1,348 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
+import { Badge } from '@/components/ui/badge';
+import { Textarea } from '@/components/ui/textarea';
+import { Checkbox } from '@/components/ui/checkbox';
 import { 
+  PlusCircle, 
+  Edit, 
+  Trash2, 
   Search,
-  Users,
-  Mail,
-  Phone,
-  Eye,
   Bell,
-  Send,
+  Save,
   X
 } from 'lucide-react';
 
 const UserManagement = () => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [showNotificationModal, setShowNotificationModal] = useState(false);
-  const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
-  const [notificationForm, setNotificationForm] = useState({
-    title: '',
-    message: '',
-    type: 'info',
-    sendEmail: false,
-    sendSMS: false
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    mobile: '',
+    city: '',
+    isAdmin: false,
+    status: 'Active',
+    password: ''
   });
 
-  // Mock data
-  const users = [
+  // Mock data - this would come from your database
+  const [users, setUsers] = useState([
     {
       id: '1',
       name: 'John Doe',
-      email: 'john@example.com',
-      mobile: '+91 9876543210',
-      panCard: 'ABCDE1234F',
+      email: 'john.doe@example.com',
+      mobile: '9876543210',
       city: 'Mumbai',
+      isAdmin: false,
       status: 'Active',
-      joinedDate: '2024-01-15',
-      totalApplications: 5
+      lastNotification: '2024-01-10T10:00:00.000Z'
     },
     {
       id: '2',
-      name: 'Jane Smith',
-      email: 'jane@example.com',
-      mobile: '+91 8765432109',
-      panCard: 'FGHIJ5678K',
+      name: 'Admin User',
+      email: 'admin@example.com',
+      mobile: '9999988888',
       city: 'Delhi',
+      isAdmin: true,
       status: 'Active',
-      joinedDate: '2024-01-10',
-      totalApplications: 3
-    },
-    {
-      id: '3',
-      name: 'Raj Patel',
-      email: 'raj@example.com',
-      mobile: '+91 7654321098',
-      panCard: 'KLMNO9876P',
-      city: 'Bangalore',
-      status: 'Active',
-      joinedDate: '2024-01-20',
-      totalApplications: 8
+      lastNotification: '2024-01-12T14:30:00.000Z'
     }
-  ];
+  ]);
 
   const filteredUsers = users.filter(user =>
     user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     user.email.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const handleSendNotification = () => {
-    setSelectedUsers(filteredUsers.map(user => user.id));
-    setShowNotificationModal(true);
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'Active': return 'bg-green-100 text-green-800';
+      case 'Inactive': return 'bg-red-100 text-red-800';
+      case 'Pending': return 'bg-yellow-100 text-yellow-800';
+      default: return 'bg-gray-100 text-gray-800';
+    }
   };
 
-  const handleNotificationSubmit = () => {
-    // Simulate sending notification
-    console.log('Sending notification to users:', selectedUsers);
-    console.log('Notification details:', notificationForm);
-    
-    // Show success message
-    alert(`Notification "${notificationForm.title}" sent successfully to ${selectedUsers.length} users!`);
-    
-    // Reset form and close modal
-    setNotificationForm({
-      title: '',
-      message: '',
-      type: 'info',
-      sendEmail: false,
-      sendSMS: false
+  const handleEdit = (user: any) => {
+    setEditingId(user.id);
+    setFormData({
+      name: user.name,
+      email: user.email,
+      mobile: user.mobile,
+      city: user.city,
+      isAdmin: user.isAdmin,
+      status: user.status,
+      password: ''
     });
-    setShowNotificationModal(false);
-    setSelectedUsers([]);
+    setShowAddForm(true);
+  };
+
+  const handleDelete = (id: string) => {
+    if (window.confirm('Are you sure you want to delete this user?')) {
+      setUsers(prev => prev.filter(user => user.id !== id));
+    }
+  };
+
+  const sendNotification = async (userId: string) => {
+    try {
+      console.log(`Sending notification to user: ${userId}`);
+      
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Show success message
+      alert('Notification sent successfully!');
+      
+      // Update user's notification count or status
+      setUsers(prev => prev.map(user => 
+        user.id === userId 
+          ? { ...user, lastNotification: new Date().toISOString() }
+          : user
+      ));
+      
+    } catch (error) {
+      console.error('Failed to send notification:', error);
+      alert('Failed to send notification. Please try again.');
+    }
+  };
+
+  const handleSave = () => {
+    const newUser = {
+      id: editingId || Date.now().toString(),
+      ...formData
+    };
+
+    if (editingId) {
+      setUsers(prev => prev.map(user => user.id === editingId ? newUser : user));
+    } else {
+      setUsers(prev => [...prev, newUser]);
+    }
+
+    handleCancel();
+  };
+
+  const handleCancel = () => {
+    setShowAddForm(false);
+    setEditingId(null);
+    setFormData({
+      name: '',
+      email: '',
+      mobile: '',
+      city: '',
+      isAdmin: false,
+      status: 'Active',
+      password: ''
+    });
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <h2 className="text-2xl font-bold">User Management</h2>
+    <div className="space-y-6 p-6 bg-gradient-to-br from-blue-50 via-white to-green-50 min-h-screen">
+      <div className="flex justify-between items-center">
+        <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-green-500 bg-clip-text text-transparent">
+          User Management
+        </h2>
         <Button 
-          onClick={handleSendNotification}
-          className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700"
+          onClick={() => setShowAddForm(true)} 
+          className="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-green-500 hover:from-blue-700 hover:to-green-600"
         >
-          <Bell className="h-4 w-4" />
-          Send Notification
+          <PlusCircle className="h-4 w-4" />
+          Add New User
         </Button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-2">
-              <Users className="h-8 w-8 text-blue-600" />
-              <div>
-                <p className="text-2xl font-bold">2,350</p>
-                <p className="text-sm text-muted-foreground">Total Users</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-2">
-              <Users className="h-8 w-8 text-green-600" />
-              <div>
-                <p className="text-2xl font-bold">180</p>
-                <p className="text-sm text-muted-foreground">New This Month</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-2">
-              <Users className="h-8 w-8 text-orange-600" />
-              <div>
-                <p className="text-2xl font-bold">1,240</p>
-                <p className="text-sm text-muted-foreground">Active Users</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-2">
-              <Users className="h-8 w-8 text-purple-600" />
-              <div>
-                <p className="text-2xl font-bold">85</p>
-                <p className="text-sm text-muted-foreground">Join Requests</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      <Card>
-        <CardHeader>
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <CardTitle>All Users</CardTitle>
-            <div className="relative w-full sm:w-64">
-              <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+      <Card className="shadow-lg border-0 bg-white/80 backdrop-blur-sm">
+        <CardHeader className="bg-gradient-to-r from-blue-50 to-green-50 rounded-t-lg">
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-gray-800">All Users</CardTitle>
+            <div className="relative">
+              <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
               <Input
                 placeholder="Search users..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
+                className="pl-10 w-64 border-gray-300 focus:border-blue-500"
               />
             </div>
           </div>
         </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {filteredUsers.map((user) => (
-              <div key={user.id} className="border rounded-lg p-4 hover:bg-gray-50">
-                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-                  <div className="flex-1">
-                    <h3 className="font-semibold text-lg">{user.name}</h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 mt-2 text-sm text-muted-foreground">
-                      <div className="flex items-center gap-1">
-                        <Mail className="h-4 w-4" />
-                        <span>{user.email}</span>
+        <CardContent className="p-6">
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-gray-200">
+                  <th className="text-left py-3 px-4 font-medium text-gray-700">Name</th>
+                  <th className="text-left py-3 px-4 font-medium text-gray-700">Email</th>
+                  <th className="text-left py-3 px-4 font-medium text-gray-700">Mobile</th>
+                  <th className="text-left py-3 px-4 font-medium text-gray-700">Role</th>
+                  <th className="text-left py-3 px-4 font-medium text-gray-700">Status</th>
+                  <th className="text-left py-3 px-4 font-medium text-gray-700">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredUsers.map((user) => (
+                  <tr key={user.id} className="border-b border-gray-100 hover:bg-gradient-to-r hover:from-blue-50/30 hover:to-green-50/30">
+                    <td className="py-3 px-4">
+                      <div>
+                        <p className="font-medium text-gray-800">{user.name}</p>
+                        <p className="text-sm text-gray-600">{user.city}</p>
                       </div>
-                      <div className="flex items-center gap-1">
-                        <Phone className="h-4 w-4" />
-                        <span>{user.mobile}</span>
+                    </td>
+                    <td className="py-3 px-4 text-gray-700">{user.email}</td>
+                    <td className="py-3 px-4 text-gray-700">{user.mobile}</td>
+                    <td className="py-3 px-4">
+                      <Badge className={user.isAdmin ? 'bg-purple-100 text-purple-800' : 'bg-blue-100 text-blue-800'}>
+                        {user.isAdmin ? 'Admin' : 'User'}
+                      </Badge>
+                    </td>
+                    <td className="py-3 px-4">
+                      <Badge className={getStatusColor(user.status)}>
+                        {user.status}
+                      </Badge>
+                    </td>
+                    <td className="py-3 px-4">
+                      <div className="flex gap-2">
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => handleEdit(user)}
+                          className="border-blue-300 text-blue-600 hover:bg-blue-50"
+                        >
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => sendNotification(user.id)}
+                          className="border-green-300 text-green-600 hover:bg-green-50"
+                        >
+                          <Bell className="h-4 w-4" />
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => handleDelete(user.id)}
+                          className="border-red-300 text-red-600 hover:bg-red-50"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
                       </div>
-                      <span>PAN: {user.panCard}</span>
-                    </div>
-                    <div className="flex flex-wrap items-center gap-4 mt-2 text-sm">
-                      <span>City: {user.city}</span>
-                      <span>Joined: {user.joinedDate}</span>
-                      <span>Applications: {user.totalApplications}</span>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <Badge className="bg-green-100 text-green-800">
-                      {user.status}
-                    </Badge>
-                    <Button variant="outline" size="sm">
-                      <Eye className="h-4 w-4" />
-                    </Button>
-                    <Button variant="outline" size="sm">
-                      <Mail className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            ))}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </CardContent>
       </Card>
 
-      {/* Notification Modal */}
-      <Dialog open={showNotificationModal} onOpenChange={setShowNotificationModal}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Bell className="h-5 w-5" />
-              Send Notification
-            </DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="notifTitle">Notification Title</Label>
-              <Input
-                id="notifTitle"
-                placeholder="Enter notification title"
-                value={notificationForm.title}
-                onChange={(e) => setNotificationForm({...notificationForm, title: e.target.value})}
-              />
-            </div>
-            
-            <div>
-              <Label htmlFor="notifMessage">Message</Label>
-              <Textarea
-                id="notifMessage"
-                placeholder="Enter your message"
-                rows={4}
-                value={notificationForm.message}
-                onChange={(e) => setNotificationForm({...notificationForm, message: e.target.value})}
-              />
-            </div>
-            
-            <div>
-              <Label htmlFor="notifType">Type</Label>
-              <select 
-                id="notifType" 
-                className="w-full px-3 py-2 border rounded-md"
-                value={notificationForm.type}
-                onChange={(e) => setNotificationForm({...notificationForm, type: e.target.value})}
-              >
-                <option value="info">Info</option>
-                <option value="success">Success</option>
-                <option value="warning">Warning</option>
-                <option value="error">Error</option>
-              </select>
-            </div>
-            
-            <div className="flex gap-4">
-              <label className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  checked={notificationForm.sendEmail}
-                  onChange={(e) => setNotificationForm({...notificationForm, sendEmail: e.target.checked})}
+      {showAddForm && (
+        <Card className="shadow-lg border-0 bg-white/90 backdrop-blur-sm">
+          <CardHeader className="bg-gradient-to-r from-blue-50 to-green-50 rounded-t-lg">
+            <CardTitle className="text-gray-800">{editingId ? 'Edit User' : 'Add New User'}</CardTitle>
+          </CardHeader>
+          <CardContent className="p-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="name" className="text-gray-700">Name</Label>
+                <Input 
+                  id="name" 
+                  placeholder="Enter name" 
+                  value={formData.name}
+                  onChange={(e) => setFormData({...formData, name: e.target.value})}
+                  className="border-gray-300 focus:border-blue-500"
                 />
-                <Mail className="h-4 w-4" />
-                Send Email
-              </label>
-              <label className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  checked={notificationForm.sendSMS}
-                  onChange={(e) => setNotificationForm({...notificationForm, sendSMS: e.target.checked})}
+              </div>
+              <div>
+                <Label htmlFor="email" className="text-gray-700">Email</Label>
+                <Input 
+                  id="email" 
+                  type="email" 
+                  placeholder="Enter email" 
+                  value={formData.email}
+                  onChange={(e) => setFormData({...formData, email: e.target.value})}
+                  className="border-gray-300 focus:border-blue-500"
                 />
-                <Phone className="h-4 w-4" />
-                Send SMS
-              </label>
+              </div>
+              <div>
+                <Label htmlFor="mobile" className="text-gray-700">Mobile</Label>
+                <Input 
+                  id="mobile" 
+                  placeholder="Enter mobile" 
+                  value={formData.mobile}
+                  onChange={(e) => setFormData({...formData, mobile: e.target.value})}
+                  className="border-gray-300 focus:border-blue-500"
+                />
+              </div>
+              <div>
+                <Label htmlFor="city" className="text-gray-700">City</Label>
+                <Input 
+                  id="city" 
+                  placeholder="Enter city" 
+                  value={formData.city}
+                  onChange={(e) => setFormData({...formData, city: e.target.value})}
+                  className="border-gray-300 focus:border-blue-500"
+                />
+              </div>
+              <div>
+                <Label htmlFor="password" className="text-gray-700">Password</Label>
+                <Input
+                  id="password"
+                  type="password"
+                  placeholder="Enter password"
+                  value={formData.password}
+                  onChange={(e) => setFormData({...formData, password: e.target.value})}
+                  className="border-gray-300 focus:border-blue-500"
+                />
+              </div>
+              <div>
+                <Label htmlFor="status" className="text-gray-700">Status</Label>
+                <select 
+                  id="status" 
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                  value={formData.status}
+                  onChange={(e) => setFormData({...formData, status: e.target.value})}
+                >
+                  <option value="Active">Active</option>
+                  <option value="Inactive">Inactive</option>
+                  <option value="Pending">Pending</option>
+                </select>
+              </div>
+              <div className="col-span-2">
+                <div className="flex items-center space-x-2">
+                  <Checkbox 
+                    id="isAdmin"
+                    checked={formData.isAdmin}
+                    onCheckedChange={(checked) => setFormData({...formData, isAdmin: checked as boolean})}
+                  />
+                  <Label htmlFor="isAdmin" className="text-gray-700">Is Admin</Label>
+                </div>
+              </div>
             </div>
-            
-            <div className="text-sm text-muted-foreground">
-              This notification will be sent to {selectedUsers.length} users
-            </div>
-            
-            <div className="flex gap-2 pt-4">
+            <div className="flex gap-2 mt-6">
               <Button 
-                onClick={handleNotificationSubmit} 
-                className="flex-1 flex items-center gap-2"
-                disabled={!notificationForm.title || !notificationForm.message}
+                onClick={handleSave}
+                className="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-green-500 hover:from-blue-700 hover:to-green-600 text-white"
               >
-                <Send className="h-4 w-4" />
-                Send Notification
+                <Save className="h-4 w-4" />
+                {editingId ? 'Update User' : 'Save User'}
               </Button>
               <Button 
                 variant="outline" 
-                onClick={() => setShowNotificationModal(false)}
-                className="flex items-center gap-2"
+                onClick={handleCancel}
+                className="flex items-center gap-2 border-gray-300 text-gray-700 hover:bg-gray-50"
               >
                 <X className="h-4 w-4" />
                 Cancel
               </Button>
             </div>
-          </div>
-        </DialogContent>
-      </Dialog>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 };

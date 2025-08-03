@@ -14,7 +14,8 @@ import {
   Building,
   Bell,
   Bot,
-  Landmark
+  Landmark,
+  DollarSign
 } from 'lucide-react';
 
 const AdminSidebar = () => {
@@ -23,6 +24,7 @@ const AdminSidebar = () => {
   const menuItems = [
     { path: '/crm-admin/dashboard', label: 'Dashboard', icon: BarChart3 },
     { path: '/crm-admin/ipos', label: 'IPO Management', icon: TrendingUp },
+    { path: '/crm-admin/gmp', label: 'GMP Management', icon: DollarSign },
     { path: '/crm-admin/nfos', label: 'NFO Management', icon: Building },
     { path: '/crm-admin/bonds', label: 'Bonds Management', icon: Landmark },
     { path: '/crm-admin/users', label: 'User Management', icon: Users },
@@ -35,9 +37,11 @@ const AdminSidebar = () => {
   ];
 
   return (
-    <div className="fixed left-0 top-0 h-full w-64 bg-white shadow-lg border-r z-40 overflow-y-auto">
-      <div className="p-6 border-b">
-        <h2 className="text-xl font-bold text-gray-900">IPOpedia Admin</h2>
+    <div className="fixed left-0 top-0 h-full w-64 bg-gradient-to-b from-white to-blue-50 shadow-lg border-r border-blue-100 z-40 overflow-y-auto">
+      <div className="p-6 border-b border-blue-100 bg-gradient-to-r from-blue-50 to-green-50">
+        <h2 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-green-500 bg-clip-text text-transparent">
+          Wealth-Prism Admin
+        </h2>
       </div>
       
       <nav className="mt-6 pb-6">
@@ -49,10 +53,10 @@ const AdminSidebar = () => {
             <NavLink
               key={item.path}
               to={item.path}
-              className={`flex items-center px-6 py-3 text-sm font-medium transition-colors ${
+              className={`flex items-center px-6 py-3 text-sm font-medium transition-all duration-200 ${
                 isActive
-                  ? 'bg-blue-50 text-blue-700 border-r-2 border-blue-700'
-                  : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                  ? 'bg-gradient-to-r from-blue-100 to-green-100 text-blue-700 border-r-3 border-blue-600 shadow-sm'
+                  : 'text-gray-600 hover:bg-gradient-to-r hover:from-blue-50 hover:to-green-50 hover:text-gray-900'
               }`}
             >
               <Icon className="h-5 w-5 mr-3 flex-shrink-0" />
