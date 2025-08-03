@@ -1,72 +1,154 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { BarChart3, Mail, Phone, MapPin } from 'lucide-react';
+import { Mail, MapPin, Phone, Clock } from 'lucide-react';
 
 const Footer = () => {
   return (
-    <footer className="bg-gray-900 text-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
-          {/* Logo and Description */}
-          <div className="sm:col-span-2 lg:col-span-2">
-            <div className="flex items-center space-x-2 mb-4">
-              <div className="bg-blue-600 text-white p-2 rounded-lg">
-                <BarChart3 className="h-6 w-6" />
-              </div>
-              <span className="text-xl font-bold">IPO-Pedia</span>
-            </div>
-            <p className="text-gray-300 mb-4 text-sm sm:text-base">
-              Your comprehensive guide to IPO, NFO, and Bond investments. Track upcoming opportunities, 
-              analyze performance, and make informed investment decisions with our advanced tools and insights.
+    <footer className="bg-white border-t py-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
+          <div>
+            <h3 className="text-sm font-semibold text-gray-900 tracking-wider uppercase mb-4">
+              About IPOpedia
+            </h3>
+            <p className="text-sm text-gray-600">
+              IPOpedia is your go-to source for IPO information, expert analysis, and investment tools.
+              We provide comprehensive data and insights to help you make informed decisions.
             </p>
-            <div className="space-y-2 text-gray-300 text-sm">
-              <div className="flex items-center space-x-2">
-                <Mail className="h-4 w-4 flex-shrink-0" />
-                <span>contact@ipopedia.com</span>
+            <div className="mt-4 space-y-2">
+              <div className="flex items-center gap-2 text-sm text-gray-600">
+                <MapPin className="h-4 w-4" />
+                <span>123 Tech Park, Cityville</span>
               </div>
-              <div className="flex items-center space-x-2">
-                <Phone className="h-4 w-4 flex-shrink-0" />
-                <span>+91 98765 43210</span>
+              <div className="flex items-center gap-2 text-sm text-gray-600">
+                <Phone className="h-4 w-4" />
+                <span>+91 9876543210</span>
               </div>
-              <div className="flex items-center space-x-2">
-                <MapPin className="h-4 w-4 flex-shrink-0" />
-                <span>Mumbai, Maharashtra, India</span>
+              <div className="flex items-center gap-2 text-sm text-gray-600">
+                <Mail className="h-4 w-4" />
+                <span>info@ipopedia.com</span>
+              </div>
+              <div className="flex items-center gap-2 text-sm text-gray-600">
+                <Clock className="h-4 w-4" />
+                <span>Mon - Fri: 9am - 6pm</span>
               </div>
             </div>
           </div>
 
-          {/* Quick Links */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-6 lg:gap-8">
+            <div>
+              <h3 className="text-sm font-semibold text-gray-900 tracking-wider uppercase mb-4">
+                Quick Links
+              </h3>
+              <ul className="space-y-2">
+                <li>
+                  <Link to="/mainboard-ipo" className="text-sm text-gray-600 hover:text-gray-900 transition-colors">
+                    Mainboard IPO
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/sme-ipo" className="text-sm text-gray-600 hover:text-gray-900 transition-colors">
+                    SME IPO
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/nfo" className="text-sm text-gray-600 hover:text-gray-900 transition-colors">
+                    NFO
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/bonds" className="text-sm text-gray-600 hover:text-gray-900 transition-colors">
+                    Bonds
+                  </Link>
+                </li>
+              </ul>
+            </div>
+
+            <div>
+              <h3 className="text-sm font-semibold text-gray-900 tracking-wider uppercase mb-4">
+                Tools
+              </h3>
+              <ul className="space-y-2">
+                <li>
+                  <Link to="/calculator" className="text-sm text-gray-600 hover:text-gray-900 transition-colors">
+                    Financial Calculator
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/performance" className="text-sm text-gray-600 hover:text-gray-900 transition-colors">
+                    Performance
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/calendar" className="text-sm text-gray-600 hover:text-gray-900 transition-colors">
+                    IPO Calendar
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/broker-comparison" className="text-sm text-gray-600 hover:text-gray-900 transition-colors">
+                    Broker Comparison
+                  </Link>
+                </li>
+              </ul>
+            </div>
+          </div>
+
           <div>
-            <h3 className="text-lg font-semibold mb-4">Quick Links</h3>
-            <ul className="space-y-2 text-sm">
-              <li><Link to="/mainboard-ipo" className="text-gray-300 hover:text-white transition-colors">Mainboard IPO</Link></li>
-              <li><Link to="/sme-ipo" className="text-gray-300 hover:text-white transition-colors">SME IPO</Link></li>
-              <li><Link to="/nfo" className="text-gray-300 hover:text-white transition-colors">NFO</Link></li>
-              <li><Link to="/bonds" className="text-gray-300 hover:text-white transition-colors">Bonds</Link></li>
-              <li><Link to="/calendar" className="text-gray-300 hover:text-white transition-colors">IPO Calendar</Link></li>
-              <li><Link to="/calculator" className="text-gray-300 hover:text-white transition-colors">P&L Calculator</Link></li>
-              <li><Link to="/broker-comparison" className="text-gray-300 hover:text-white transition-colors">Broker Comparison</Link></li>
+            <h3 className="text-sm font-semibold text-gray-900 tracking-wider uppercase mb-4">
+              Legal
+            </h3>
+            <ul className="space-y-2">
+              <li>
+                <Link to="/terms" className="text-sm text-gray-600 hover:text-gray-900 transition-colors">
+                  Terms of Service
+                </Link>
+              </li>
+              <li>
+                <Link to="/privacy" className="text-sm text-gray-600 hover:text-gray-900 transition-colors">
+                  Privacy Policy
+                </Link>
+              </li>
+              <li>
+                <Link to="/disclaimer" className="text-sm text-gray-600 hover:text-gray-900 transition-colors">
+                  Disclaimer
+                </Link>
+              </li>
             </ul>
           </div>
 
-          {/* Resources & Legal */}
           <div>
-            <h3 className="text-lg font-semibold mb-4">Resources</h3>
-            <ul className="space-y-2 text-sm">
-              <li><Link to="/blog" className="text-gray-300 hover:text-white transition-colors">Blog & News</Link></li>
-              <li><Link to="/analysis" className="text-gray-300 hover:text-white transition-colors">Market Analysis</Link></li>
-              <li><Link to="/performance" className="text-gray-300 hover:text-white transition-colors">IPO Performance</Link></li>
-              <li><Link to="/terms" className="text-gray-300 hover:text-white transition-colors">Terms & Conditions</Link></li>
-              <li><Link to="/privacy" className="text-gray-300 hover:text-white transition-colors">Privacy Policy</Link></li>
-              <li><Link to="/disclaimer" className="text-gray-300 hover:text-white transition-colors">Disclaimer</Link></li>
-              <li><Link to="/contact" className="text-gray-300 hover:text-white transition-colors">Contact Us</Link></li>
+            <h3 className="text-sm font-semibold text-gray-900 tracking-wider uppercase mb-4">
+              Connect
+            </h3>
+            <ul className="space-y-2">
+              <li>
+                <a href="#" className="text-sm text-gray-600 hover:text-gray-900 transition-colors">
+                  Facebook
+                </a>
+              </li>
+              <li>
+                <a href="#" className="text-sm text-gray-600 hover:text-gray-900 transition-colors">
+                  Twitter
+                </a>
+              </li>
+              <li>
+                <a href="#" className="text-sm text-gray-600 hover:text-gray-900 transition-colors">
+                  LinkedIn
+                </a>
+              </li>
+              <li>
+                <a href="#" className="text-sm text-gray-600 hover:text-gray-900 transition-colors">
+                  Instagram
+                </a>
+              </li>
             </ul>
           </div>
         </div>
 
-        <div className="border-t border-gray-800 mt-8 pt-6 sm:pt-8 text-center text-gray-300 text-sm">
-          <p>&copy; 2024 IPO-Pedia. All rights reserved. | Investment in securities market are subject to market risks.</p>
+        <div className="mt-12 py-4 border-t">
+          <p className="text-sm text-gray-500 text-center">
+            &copy; {new Date().getFullYear()} IPOpedia. All rights reserved.
+          </p>
         </div>
       </div>
     </footer>

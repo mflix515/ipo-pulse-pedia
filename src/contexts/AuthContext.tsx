@@ -37,18 +37,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setIsLoading(true);
     try {
       // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise(resolve => setTimeout(resolve, 500));
       
       const userData = {
         id: '1',
-        name: 'John Doe',
+        name: email === 'admin@ipopedia.com' ? 'Admin User' : 'John Doe',
         email,
         mobile: '9876543210',
-        isAdmin: email === 'admin@ipopedia.com'
+        isAdmin: email === 'admin@ipopedia.com' || email.includes('admin')
       };
       
       setUser(userData);
       localStorage.setItem('user', JSON.stringify(userData));
+    } catch (error) {
+      console.error('Login error:', error);
+      throw error;
     } finally {
       setIsLoading(false);
     }
@@ -58,12 +61,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setIsLoading(true);
     try {
       // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise(resolve => setTimeout(resolve, 500));
       
       const newUser = {
         id: Date.now().toString(),
         ...userData,
-        isAdmin: false
+        isAdmin: userData.email.includes('admin')
       };
       
       setUser(newUser);

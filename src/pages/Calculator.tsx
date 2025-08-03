@@ -1,474 +1,496 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import AdPlacement from '@/components/AdPlacement';
+import AIChatbot from '@/components/AIChatbot';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Calculator as CalculatorIcon, TrendingUp, TrendingDown, Calendar, DollarSign } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
-import type { Tables } from '@/integrations/supabase/types';
-import { useAuth } from '@/contexts/AuthContext';
-
-type IPO = Tables<'ipos'>;
-type IPOTrade = Tables<'ipo_trades'>;
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { 
+  Calculator as CalcIcon, 
+  TrendingUp, 
+  DollarSign, 
+  PiggyBank,
+  CreditCard,
+  BarChart3,
+  Target
+} from 'lucide-react';
 
 const Calculator = () => {
-  const { user } = useAuth();
-  const [selectedIPO, setSelectedIPO] = useState('');
-  const [lotSize, setLotSize] = useState('');
-  const [sellPrice, setSellPrice] = useState('');
-  const [sellDate, setSellDate] = useState('');
-  const [useGMP, setUseGMP] = useState(false);
-  const [customGMP, setCustomGMP] = useState('');
-  const [ipos, setIpos] = useState<IPO[]>([]);
-  const [userTrades, setUserTrades] = useState<IPOTrade[]>([]);
-  const [newListedIPOs, setNewListedIPOs] = useState<IPO[]>([]);
-  const [results, setResults] = useState<{
-    investedAmount: number;
-    currentValue: number;
-    profitLoss: number;
-    profitLossPercentage: number;
-    sellValue?: number;
-    actualProfitLoss?: number;
-    actualProfitLossPercentage?: number;
-  } | null>(null);
+  const [activeCalculator, setActiveCalculator] = useState('sip');
+  
+  // SIP Calculator State
+  const [sipAmount, setSipAmount] = useState('5000');
+  const [sipRate, setSipRate] = useState('12');
+  const [sipYears, setSipYears] = useState('10');
+  const [sipResult, setSipResult] = useState<any>(null);
 
-  useEffect(() => {
-    fetchIPOs();
-    fetchNewListedIPOs();
-    if (user) {
-      fetchUserTrades();
-    }
-  }, [user]);
+  // SWP Calculator State
+  const [swpInvestment, setSwpInvestment] = useState('1000000');
+  const [swpWithdrawal, setSwpWithdrawal] = useState('10000');
+  const [swpRate, setSwpRate] = useState('10');
+  const [swpResult, setSwpResult] = useState<any>(null);
 
-  const fetchIPOs = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('ipos')
-        .select('*')
-        .order('created_at', { ascending: false });
+  // FD Calculator State
+  const [fdAmount, setFdAmount] = useState('100000');
+  const [fdRate, setFdRate] = useState('6.5');
+  const [fdYears, setFdYears] = useState('5');
+  const [fdResult, setFdResult] = useState<any>(null);
 
-      if (error) throw error;
-      setIpos(data || []);
-    } catch (error) {
-      console.error('Error fetching IPOs:', error);
-    }
-  };
+  // EMI Calculator State
+  const [loanAmount, setLoanAmount] = useState('2500000');
+  const [loanRate, setLoanRate] = useState('8.5');
+  const [loanYears, setLoanYears] = useState('20');
+  const [emiResult, setEmiResult] = useState<any>(null);
 
-  const fetchNewListedIPOs = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('ipos')
-        .select('*')
-        .eq('status', 'listed')
-        .not('listing_price', 'is', null)
-        .order('listing_date', { ascending: false })
-        .limit(10);
-
-      if (error) throw error;
-      setNewListedIPOs(data || []);
-    } catch (error) {
-      console.error('Error fetching new listed IPOs:', error);
-    }
-  };
-
-  const fetchUserTrades = async () => {
-    if (!user) return;
+  const calculateSIP = () => {
+    const P = parseFloat(sipAmount);
+    const r = parseFloat(sipRate) / 12 / 100;
+    const n = parseFloat(sipYears) * 12;
     
-    try {
-      const { data, error } = await supabase
-        .from('ipo_trades')
-        .select('*, ipos(name)')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      setUserTrades(data || []);
-    } catch (error) {
-      console.error('Error fetching user trades:', error);
-    }
+    const futureValue = P * (((Math.pow(1 + r, n)) - 1) / r) * (1 + r);
+    const totalInvested = P * n;
+    const returns = futureValue - totalInvested;
+    
+    setSipResult({
+      futureValue: Math.round(futureValue),
+      totalInvested: Math.round(totalInvested),
+      returns: Math.round(returns)
+    });
   };
 
-  const calculateProfitLoss = () => {
-    const selectedIPOData = ipos.find(ipo => ipo.id === selectedIPO);
-    if (!selectedIPOData || !lotSize) return;
-
-    const lots = parseInt(lotSize);
-    const shares = lots * (selectedIPOData.lot_size || 0);
-    const issuePrice = parseFloat(selectedIPOData.price_range?.split('-')[0] || '0');
-    const investedAmount = shares * issuePrice;
+  const calculateSWP = () => {
+    const principal = parseFloat(swpInvestment);
+    const withdrawal = parseFloat(swpWithdrawal);
+    const rate = parseFloat(swpRate) / 12 / 100;
     
-    let currentPrice = parseFloat(selectedIPOData.current_price || '0');
+    // Simplified calculation for demonstration
+    const monthsLasting = Math.log(1 - (withdrawal * (1 / rate)) / principal) / Math.log(1 + rate);
+    const yearsLasting = Math.abs(monthsLasting) / 12;
     
-    // If IPO is not listed and user wants to use GMP
-    if (!currentPrice && useGMP) {
-      const gmpValue = customGMP ? parseFloat(customGMP) : parseFloat(selectedIPOData.gmp || '0');
-      if (gmpValue) {
-        currentPrice = issuePrice + gmpValue;
-      }
-    }
-
-    if (currentPrice) {
-      const currentValue = shares * currentPrice;
-      const profitLoss = currentValue - investedAmount;
-      const profitLossPercentage = (profitLoss / investedAmount) * 100;
-
-      let sellValue, actualProfitLoss, actualProfitLossPercentage;
-      
-      if (sellPrice) {
-        const sellPriceNum = parseFloat(sellPrice);
-        sellValue = shares * sellPriceNum;
-        actualProfitLoss = sellValue - investedAmount;
-        actualProfitLossPercentage = (actualProfitLoss / investedAmount) * 100;
-      }
-
-      setResults({
-        investedAmount,
-        currentValue,
-        profitLoss,
-        profitLossPercentage,
-        sellValue,
-        actualProfitLoss,
-        actualProfitLossPercentage
-      });
-    }
+    setSwpResult({
+      monthsLasting: Math.round(Math.abs(monthsLasting)),
+      yearsLasting: Math.round(yearsLasting * 10) / 10,
+      totalWithdrawal: withdrawal * Math.abs(monthsLasting)
+    });
   };
 
-  const saveTradeRecord = async () => {
-    if (!user || !selectedIPO || !lotSize) return;
+  const calculateFD = () => {
+    const P = parseFloat(fdAmount);
+    const r = parseFloat(fdRate) / 100;
+    const t = parseFloat(fdYears);
     
-    const selectedIPOData = ipos.find(ipo => ipo.id === selectedIPO);
-    if (!selectedIPOData) return;
-
-    try {
-      const issuePrice = parseFloat(selectedIPOData.price_range?.split('-')[0] || '0');
-      const listingPrice = parseFloat(selectedIPOData.listing_price || '0');
-      const sellPriceNum = sellPrice ? parseFloat(sellPrice) : null;
-      const profitLoss = results?.actualProfitLoss || results?.profitLoss || 0;
-
-      const { error } = await supabase
-        .from('ipo_trades')
-        .insert({
-          user_id: user.id,
-          ipo_id: selectedIPO,
-          lots_applied: parseInt(lotSize),
-          lots_allotted: parseInt(lotSize), // Assuming full allotment for calculator
-          issue_price: issuePrice,
-          listing_price: listingPrice || null,
-          sell_price: sellPriceNum,
-          sell_date: sellDate || null,
-          profit_loss: profitLoss
-        });
-
-      if (error) throw error;
-      
-      fetchUserTrades();
-      alert('Trade record saved successfully!');
-    } catch (error) {
-      console.error('Error saving trade:', error);
-      alert('Error saving trade record');
-    }
+    const maturityAmount = P * Math.pow((1 + r / 4), 4 * t); // Quarterly compounding
+    const interest = maturityAmount - P;
+    
+    setFdResult({
+      maturityAmount: Math.round(maturityAmount),
+      interest: Math.round(interest),
+      totalDeposit: P
+    });
   };
 
-  const selectedIPOData = ipos.find(ipo => ipo.id === selectedIPO);
+  const calculateEMI = () => {
+    const P = parseFloat(loanAmount);
+    const r = parseFloat(loanRate) / 12 / 100;
+    const n = parseFloat(loanYears) * 12;
+    
+    const emi = P * r * Math.pow(1 + r, n) / (Math.pow(1 + r, n) - 1);
+    const totalPayment = emi * n;
+    const totalInterest = totalPayment - P;
+    
+    setEmiResult({
+      emi: Math.round(emi),
+      totalPayment: Math.round(totalPayment),
+      totalInterest: Math.round(totalInterest)
+    });
+  };
+
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR',
+      maximumFractionDigits: 0
+    }).format(amount);
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
       <Navbar />
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Ad Placement */}
-        <AdPlacement size="banner" position="calculator-top" className="mb-6" />
-        
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-4">IPO Profit/Loss Calculator</h1>
-          <p className="text-lg text-gray-600">
-            Calculate your potential profits or losses from IPO investments and track your performance
+          <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
+            Financial Calculators
+          </h1>
+          <p className="text-lg text-gray-600 max-w-3xl mx-auto">
+            Plan your investments and financial goals with our comprehensive suite of calculators. 
+            Make informed decisions about SIP, SWP, FD, loans, and more.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          {/* Left Sidebar Ad */}
-          <div className="hidden lg:block lg:col-span-2">
-            <AdPlacement size="sidebar" position="calculator-left" />
-          </div>
+        <Tabs value={activeCalculator} onValueChange={setActiveCalculator} className="w-full">
+          <TabsList className="grid w-full grid-cols-3 lg:grid-cols-7 mb-8">
+            <TabsTrigger value="sip" className="text-xs sm:text-sm">SIP</TabsTrigger>
+            <TabsTrigger value="swp" className="text-xs sm:text-sm">SWP</TabsTrigger>
+            <TabsTrigger value="stepup" className="text-xs sm:text-sm">Step-up SIP</TabsTrigger>
+            <TabsTrigger value="fd" className="text-xs sm:text-sm">FD</TabsTrigger>
+            <TabsTrigger value="rd" className="text-xs sm:text-sm">RD</TabsTrigger>
+            <TabsTrigger value="emi" className="text-xs sm:text-sm">EMI</TabsTrigger>
+            <TabsTrigger value="mutual" className="text-xs sm:text-sm">Mutual Fund</TabsTrigger>
+          </TabsList>
 
-          {/* Main Content */}
-          <div className="lg:col-span-8">
-            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-              {/* Calculator Form */}
+          {/* SIP Calculator */}
+          <TabsContent value="sip">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               <Card>
                 <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <CalculatorIcon className="h-5 w-5 mr-2" />
-                    IPO Calculator
+                  <CardTitle className="flex items-center gap-2">
+                    <TrendingUp className="h-5 w-5 text-blue-600" />
+                    SIP Calculator
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-6">
+                <CardContent className="space-y-4">
                   <div>
-                    <Label htmlFor="ipo-select">Select IPO</Label>
-                    <Select value={selectedIPO} onValueChange={setSelectedIPO}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Choose an IPO" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {ipos.map(ipo => (
-                          <SelectItem key={ipo.id} value={ipo.id}>
-                            {ipo.name} - ₹{ipo.price_range} ({ipo.status})
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  {selectedIPOData && (
-                    <div className="bg-gray-50 p-4 rounded-lg">
-                      <h4 className="font-semibold mb-2">{selectedIPOData.name}</h4>
-                      <div className="text-sm text-gray-600 space-y-1">
-                        <p>Price Range: ₹{selectedIPOData.price_range}</p>
-                        <p>Lot Size: {selectedIPOData.lot_size} shares</p>
-                        {selectedIPOData.current_price && (
-                          <p>Current Price: ₹{selectedIPOData.current_price}</p>
-                        )}
-                        {selectedIPOData.gmp && (
-                          <p>GMP: ₹{selectedIPOData.gmp}</p>
-                        )}
-                        <p>Status: {selectedIPOData.status}</p>
-                      </div>
-                    </div>
-                  )}
-
-                  <div>
-                    <Label htmlFor="lot-size">Number of Lots</Label>
+                    <Label htmlFor="sipAmount">Monthly SIP Amount (₹)</Label>
                     <Input
-                      id="lot-size"
+                      id="sipAmount"
                       type="number"
-                      placeholder="Enter number of lots"
-                      value={lotSize}
-                      onChange={(e) => setLotSize(e.target.value)}
+                      value={sipAmount}
+                      onChange={(e) => setSipAmount(e.target.value)}
+                      placeholder="5000"
                     />
                   </div>
-
                   <div>
-                    <Label htmlFor="sell-price">Sell Price (Optional)</Label>
+                    <Label htmlFor="sipRate">Expected Annual Return (%)</Label>
                     <Input
-                      id="sell-price"
+                      id="sipRate"
                       type="number"
-                      placeholder="Enter sell price per share"
-                      value={sellPrice}
-                      onChange={(e) => setSellPrice(e.target.value)}
+                      step="0.1"
+                      value={sipRate}
+                      onChange={(e) => setSipRate(e.target.value)}
+                      placeholder="12"
                     />
                   </div>
-
-                  {sellPrice && (
-                    <div>
-                      <Label htmlFor="sell-date">Sell Date (Optional)</Label>
-                      <Input
-                        id="sell-date"
-                        type="date"
-                        value={sellDate}
-                        onChange={(e) => setSellDate(e.target.value)}
-                      />
-                    </div>
-                  )}
-
-                  {selectedIPOData && !selectedIPOData.current_price && (
-                    <div className="space-y-4">
-                      <div className="flex items-center space-x-2">
-                        <Checkbox
-                          id="use-gmp"
-                          checked={useGMP}
-                          onCheckedChange={(checked) => setUseGMP(checked === true)}
-                        />
-                        <Label htmlFor="use-gmp">Use GMP for calculation</Label>
-                      </div>
-                      
-                      {useGMP && (
-                        <div>
-                          <Label htmlFor="custom-gmp">Custom GMP (optional)</Label>
-                          <Input
-                            id="custom-gmp"
-                            type="number"
-                            placeholder={`Default: ₹${selectedIPOData.gmp || 0}`}
-                            value={customGMP}
-                            onChange={(e) => setCustomGMP(e.target.value)}
-                          />
-                        </div>
-                      )}
-                    </div>
-                  )}
-
-                  <div className="flex space-x-2">
-                    <Button onClick={calculateProfitLoss} className="flex-1">
-                      Calculate P&L
-                    </Button>
-                    {user && results && (
-                      <Button onClick={saveTradeRecord} variant="outline">
-                        Save Record
-                      </Button>
-                    )}
+                  <div>
+                    <Label htmlFor="sipYears">Investment Period (Years)</Label>
+                    <Input
+                      id="sipYears"
+                      type="number"
+                      value={sipYears}
+                      onChange={(e) => setSipYears(e.target.value)}
+                      placeholder="10"
+                    />
                   </div>
+                  <Button onClick={calculateSIP} className="w-full">
+                    Calculate SIP
+                  </Button>
                 </CardContent>
               </Card>
 
-              {/* Results */}
+              {sipResult && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle>SIP Results</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      <div className="bg-blue-50 p-4 rounded-lg">
+                        <div className="text-sm text-gray-600">Future Value</div>
+                        <div className="text-2xl font-bold text-blue-600">
+                          {formatCurrency(sipResult.futureValue)}
+                        </div>
+                      </div>
+                      <div className="bg-green-50 p-4 rounded-lg">
+                        <div className="text-sm text-gray-600">Total Invested</div>
+                        <div className="text-xl font-bold text-green-600">
+                          {formatCurrency(sipResult.totalInvested)}
+                        </div>
+                      </div>
+                      <div className="bg-purple-50 p-4 rounded-lg">
+                        <div className="text-sm text-gray-600">Estimated Returns</div>
+                        <div className="text-xl font-bold text-purple-600">
+                          {formatCurrency(sipResult.returns)}
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+          </TabsContent>
+
+          {/* SWP Calculator */}
+          <TabsContent value="swp">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               <Card>
                 <CardHeader>
-                  <CardTitle>Calculation Results</CardTitle>
+                  <CardTitle className="flex items-center gap-2">
+                    <DollarSign className="h-5 w-5 text-green-600" />
+                    SWP Calculator
+                  </CardTitle>
                 </CardHeader>
-                <CardContent>
-                  {results ? (
-                    <div className="space-y-4">
-                      <div className="grid grid-cols-2 gap-4">
-                        <div className="bg-blue-50 p-4 rounded-lg">
-                          <h4 className="text-sm font-medium text-blue-700">Invested Amount</h4>
-                          <p className="text-xl font-bold text-blue-900">₹{results.investedAmount.toLocaleString()}</p>
-                        </div>
-                        <div className="bg-green-50 p-4 rounded-lg">
-                          <h4 className="text-sm font-medium text-green-700">Current Value</h4>
-                          <p className="text-xl font-bold text-green-900">₹{results.currentValue.toLocaleString()}</p>
-                        </div>
-                      </div>
-                      
-                      <div className={`p-4 rounded-lg ${results.profitLoss >= 0 ? 'bg-green-50' : 'bg-red-50'}`}>
-                        <div className="flex items-center justify-between">
-                          <h4 className={`text-sm font-medium ${results.profitLoss >= 0 ? 'text-green-700' : 'text-red-700'}`}>
-                            Unrealized {results.profitLoss >= 0 ? 'Profit' : 'Loss'}
-                          </h4>
-                          {results.profitLoss >= 0 ? (
-                            <TrendingUp className="h-5 w-5 text-green-600" />
-                          ) : (
-                            <TrendingDown className="h-5 w-5 text-red-600" />
-                          )}
-                        </div>
-                        <p className={`text-2xl font-bold ${results.profitLoss >= 0 ? 'text-green-900' : 'text-red-900'}`}>
-                          ₹{Math.abs(results.profitLoss).toLocaleString()}
-                        </p>
-                        <p className={`text-sm ${results.profitLoss >= 0 ? 'text-green-700' : 'text-red-700'}`}>
-                          {results.profitLossPercentage >= 0 ? '+' : ''}{results.profitLossPercentage.toFixed(2)}%
-                        </p>
-                      </div>
-
-                      {results.sellValue && (
-                        <div className={`p-4 rounded-lg ${(results.actualProfitLoss || 0) >= 0 ? 'bg-green-50' : 'bg-red-50'}`}>
-                          <div className="flex items-center justify-between">
-                            <h4 className={`text-sm font-medium ${(results.actualProfitLoss || 0) >= 0 ? 'text-green-700' : 'text-red-700'}`}>
-                              Realized {(results.actualProfitLoss || 0) >= 0 ? 'Profit' : 'Loss'}
-                            </h4>
-                            <DollarSign className="h-5 w-5 text-gray-600" />
-                          </div>
-                          <p className={`text-2xl font-bold ${(results.actualProfitLoss || 0) >= 0 ? 'text-green-900' : 'text-red-900'}`}>
-                            ₹{Math.abs(results.actualProfitLoss || 0).toLocaleString()}
-                          </p>
-                          <p className={`text-sm ${(results.actualProfitLoss || 0) >= 0 ? 'text-green-700' : 'text-red-700'}`}>
-                            {(results.actualProfitLossPercentage || 0) >= 0 ? '+' : ''}{(results.actualProfitLossPercentage || 0).toFixed(2)}%
-                          </p>
-                          <p className="text-xs text-gray-500">Sell Value: ₹{results.sellValue.toLocaleString()}</p>
-                        </div>
-                      )}
-                    </div>
-                  ) : (
-                    <div className="text-center text-gray-500 py-8">
-                      <CalculatorIcon className="h-12 w-12 mx-auto mb-4 text-gray-300" />
-                      <p>Select an IPO and enter lot size to calculate P&L</p>
-                    </div>
-                  )}
+                <CardContent className="space-y-4">
+                  <div>
+                    <Label htmlFor="swpInvestment">Total Investment (₹)</Label>
+                    <Input
+                      id="swpInvestment"
+                      type="number"
+                      value={swpInvestment}
+                      onChange={(e) => setSwpInvestment(e.target.value)}
+                      placeholder="1000000"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="swpWithdrawal">Monthly Withdrawal (₹)</Label>
+                    <Input
+                      id="swpWithdrawal"
+                      type="number"
+                      value={swpWithdrawal}
+                      onChange={(e) => setSwpWithdrawal(e.target.value)}
+                      placeholder="10000"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="swpRate">Expected Annual Return (%)</Label>
+                    <Input
+                      id="swpRate"
+                      type="number"
+                      step="0.1"
+                      value={swpRate}
+                      onChange={(e) => setSwpRate(e.target.value)}
+                      placeholder="10"
+                    />
+                  </div>
+                  <Button onClick={calculateSWP} className="w-full">
+                    Calculate SWP
+                  </Button>
                 </CardContent>
               </Card>
+
+              {swpResult && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle>SWP Results</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      <div className="bg-green-50 p-4 rounded-lg">
+                        <div className="text-sm text-gray-600">Investment Will Last</div>
+                        <div className="text-2xl font-bold text-green-600">
+                          {swpResult.yearsLasting} Years
+                        </div>
+                        <div className="text-sm text-gray-500">
+                          ({swpResult.monthsLasting} months)
+                        </div>
+                      </div>
+                      <div className="bg-blue-50 p-4 rounded-lg">
+                        <div className="text-sm text-gray-600">Total Withdrawal</div>
+                        <div className="text-xl font-bold text-blue-600">
+                          {formatCurrency(swpResult.totalWithdrawal)}
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
             </div>
+          </TabsContent>
 
-            {/* Banner Ad */}
-            <AdPlacement size="banner" position="calculator-middle" className="my-8" />
+          {/* FD Calculator */}
+          <TabsContent value="fd">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <PiggyBank className="h-5 w-5 text-orange-600" />
+                    Fixed Deposit Calculator
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <Label htmlFor="fdAmount">Deposit Amount (₹)</Label>
+                    <Input
+                      id="fdAmount"
+                      type="number"
+                      value={fdAmount}
+                      onChange={(e) => setFdAmount(e.target.value)}
+                      placeholder="100000"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="fdRate">Annual Interest Rate (%)</Label>
+                    <Input
+                      id="fdRate"
+                      type="number"
+                      step="0.1"
+                      value={fdRate}
+                      onChange={(e) => setFdRate(e.target.value)}
+                      placeholder="6.5"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="fdYears">Investment Period (Years)</Label>
+                    <Input
+                      id="fdYears"
+                      type="number"
+                      value={fdYears}
+                      onChange={(e) => setFdYears(e.target.value)}
+                      placeholder="5"
+                    />
+                  </div>
+                  <Button onClick={calculateFD} className="w-full">
+                    Calculate FD
+                  </Button>
+                </CardContent>
+              </Card>
 
-            {/* Recently Listed IPOs with P&L */}
-            <Card className="mt-6">
+              {fdResult && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle>FD Results</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      <div className="bg-orange-50 p-4 rounded-lg">
+                        <div className="text-sm text-gray-600">Maturity Amount</div>
+                        <div className="text-2xl font-bold text-orange-600">
+                          {formatCurrency(fdResult.maturityAmount)}
+                        </div>
+                      </div>
+                      <div className="bg-green-50 p-4 rounded-lg">
+                        <div className="text-sm text-gray-600">Interest Earned</div>
+                        <div className="text-xl font-bold text-green-600">
+                          {formatCurrency(fdResult.interest)}
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+          </TabsContent>
+
+          {/* EMI Calculator */}
+          <TabsContent value="emi">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <CreditCard className="h-5 w-5 text-red-600" />
+                    EMI Calculator
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <Label htmlFor="loanAmount">Loan Amount (₹)</Label>
+                    <Input
+                      id="loanAmount"
+                      type="number"
+                      value={loanAmount}
+                      onChange={(e) => setLoanAmount(e.target.value)}
+                      placeholder="2500000"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="loanRate">Annual Interest Rate (%)</Label>
+                    <Input
+                      id="loanRate"
+                      type="number"
+                      step="0.1"
+                      value={loanRate}
+                      onChange={(e) => setLoanRate(e.target.value)}
+                      placeholder="8.5"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="loanYears">Loan Tenure (Years)</Label>
+                    <Input
+                      id="loanYears"
+                      type="number"
+                      value={loanYears}
+                      onChange={(e) => setLoanYears(e.target.value)}
+                      placeholder="20"
+                    />
+                  </div>
+                  <Button onClick={calculateEMI} className="w-full">
+                    Calculate EMI
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {emiResult && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle>EMI Results</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      <div className="bg-red-50 p-4 rounded-lg">
+                        <div className="text-sm text-gray-600">Monthly EMI</div>
+                        <div className="text-2xl font-bold text-red-600">
+                          {formatCurrency(emiResult.emi)}
+                        </div>
+                      </div>
+                      <div className="bg-orange-50 p-4 rounded-lg">
+                        <div className="text-sm text-gray-600">Total Payment</div>
+                        <div className="text-xl font-bold text-orange-600">
+                          {formatCurrency(emiResult.totalPayment)}
+                        </div>
+                      </div>
+                      <div className="bg-purple-50 p-4 rounded-lg">
+                        <div className="text-sm text-gray-600">Total Interest</div>
+                        <div className="text-xl font-bold text-purple-600">
+                          {formatCurrency(emiResult.totalInterest)}
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+          </TabsContent>
+
+          {/* Placeholder tabs for other calculators */}
+          <TabsContent value="stepup">
+            <Card>
               <CardHeader>
-                <CardTitle>Recently Listed IPOs Performance</CardTitle>
+                <CardTitle>Step-up SIP Calculator</CardTitle>
               </CardHeader>
               <CardContent>
-                {newListedIPOs.length === 0 ? (
-                  <p className="text-gray-500 text-center py-8">No recently listed IPOs found.</p>
-                ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {newListedIPOs.map((ipo) => {
-                      const issuePrice = parseFloat(ipo.price_range?.split('-')[0] || '0');
-                      const listingPrice = parseFloat(ipo.listing_price || '0');
-                      const currentPrice = parseFloat(ipo.current_price || '0') || listingPrice;
-                      const listingGain = listingPrice - issuePrice;
-                      const currentGain = currentPrice - issuePrice;
-                      const listingGainPercent = (listingGain / issuePrice) * 100;
-                      const currentGainPercent = (currentGain / issuePrice) * 100;
-
-                      return (
-                        <div key={ipo.id} className="bg-gray-50 p-4 rounded-lg">
-                          <h4 className="font-semibold text-sm mb-2">{ipo.name}</h4>
-                          <div className="text-xs space-y-1">
-                            <p>Issue Price: ₹{issuePrice}</p>
-                            <p>Listing Price: ₹{listingPrice}</p>
-                            <p>Current Price: ₹{currentPrice}</p>
-                            <div className={`font-medium ${listingGain >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                              Listing Gain: ₹{listingGain.toFixed(2)} ({listingGainPercent.toFixed(1)}%)
-                            </div>
-                            <div className={`font-medium ${currentGain >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                              Current Gain: ₹{currentGain.toFixed(2)} ({currentGainPercent.toFixed(1)}%)
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
+                <p className="text-gray-600">Step-up SIP calculator coming soon...</p>
               </CardContent>
             </Card>
+          </TabsContent>
 
-            {/* User's IPO Trades History */}
-            {user && userTrades.length > 0 && (
-              <Card className="mt-6">
-                <CardHeader>
-                  <CardTitle>Your IPO Trading History</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {userTrades.map((trade) => (
-                      <div key={trade.id} className="bg-gray-50 p-4 rounded-lg">
-                        <div className="flex justify-between items-start">
-                          <div>
-                            <h4 className="font-semibold">{(trade as any).ipos?.name}</h4>
-                            <p className="text-sm text-gray-600">
-                              {trade.lots_applied} lots • Issue: ₹{trade.issue_price}
-                              {trade.sell_price && ` • Sold: ₹${trade.sell_price}`}
-                            </p>
-                          </div>
-                          <div className={`text-right ${(trade.profit_loss || 0) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                            <p className="font-bold">
-                              {(trade.profit_loss || 0) >= 0 ? '+' : ''}₹{Math.abs(trade.profit_loss || 0).toLocaleString()}
-                            </p>
-                            <p className="text-xs">
-                              {((trade.profit_loss || 0) / ((trade.issue_price || 0) * (trade.lots_applied || 0) * 100) * 100).toFixed(1)}%
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-          </div>
+          <TabsContent value="rd">
+            <Card>
+              <CardHeader>
+                <CardTitle>Recurring Deposit Calculator</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-600">RD calculator coming soon...</p>
+              </CardContent>
+            </Card>
+          </TabsContent>
 
-          {/* Right Sidebar Ad */}
-          <div className="hidden lg:block lg:col-span-2">
-            <AdPlacement size="sidebar" position="calculator-right" />
-          </div>
-        </div>
+          <TabsContent value="mutual">
+            <Card>
+              <CardHeader>
+                <CardTitle>Mutual Fund Calculator</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-600">Mutual fund calculator coming soon...</p>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
       </div>
 
       <Footer />
+      <AIChatbot />
     </div>
   );
 };
