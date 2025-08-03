@@ -143,7 +143,7 @@ const Community = () => {
       
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-4">Investo-pedia Community</h1>
+          <h1 className="text-3xl font-bold text-gray-900 mb-4">Wealth-Prism Community</h1>
           <p className="text-gray-600 max-w-2xl mx-auto">
             Connect with fellow investors, share your experiences, and learn from the community
           </p>

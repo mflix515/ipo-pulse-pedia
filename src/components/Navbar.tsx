@@ -51,8 +51,8 @@ const Navbar = () => {
               <div className="bg-blue-600 text-white p-2 rounded-lg">
                 <BarChart3 className="h-5 w-5" />
               </div>
-              <span className="text-xl font-bold text-gray-900 hidden sm:block">Investo-Pedia</span>
-              <span className="text-lg font-bold text-gray-900 sm:hidden">Investo</span>
+              <span className="text-xl font-bold text-gray-900 hidden sm:block">Wealth-Prism</span>
+              <span className="text-lg font-bold text-gray-900 sm:hidden">Wealth-Prism</span>
             </Link>
           </div>
 
