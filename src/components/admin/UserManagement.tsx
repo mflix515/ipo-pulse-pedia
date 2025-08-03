@@ -1,11 +1,12 @@
-import React, { useState } from 'react';
+
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
+import { supabase } from '@/integrations/supabase/client';
 import { 
   PlusCircle, 
   Edit, 
@@ -16,43 +17,54 @@ import {
   X
 } from 'lucide-react';
 
+interface User {
+  id: string;
+  name: string;
+  email: string;
+  mobile: string | null;
+  city: string | null;
+  is_admin: boolean;
+  status: string;
+  created_at: string;
+  updated_at: string;
+}
+
 const UserManagement = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [users, setUsers] = useState<User[]>([]);
+  const [loading, setLoading] = useState(true);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     mobile: '',
     city: '',
-    isAdmin: false,
+    is_admin: false,
     status: 'Active',
     password: ''
   });
 
-  // Mock data - this would come from your database
-  const [users, setUsers] = useState([
-    {
-      id: '1',
-      name: 'John Doe',
-      email: 'john.doe@example.com',
-      mobile: '9876543210',
-      city: 'Mumbai',
-      isAdmin: false,
-      status: 'Active',
-      lastNotification: '2024-01-10T10:00:00.000Z'
-    },
-    {
-      id: '2',
-      name: 'Admin User',
-      email: 'admin@example.com',
-      mobile: '9999988888',
-      city: 'Delhi',
-      isAdmin: true,
-      status: 'Active',
-      lastNotification: '2024-01-12T14:30:00.000Z'
+  const fetchUsers = async () => {
+    try {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('users')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setUsers(data || []);
+    } catch (error) {
+      console.error('Error fetching users:', error);
+    } finally {
+      setLoading(false);
     }
-  ]);
+  };
+
+  useEffect(() => {
+    fetchUsers();
+  }, []);
 
   const filteredUsers = users.filter(user =>
     user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -68,23 +80,36 @@ const UserManagement = () => {
     }
   };
 
-  const handleEdit = (user: any) => {
+  const handleEdit = (user: User) => {
     setEditingId(user.id);
     setFormData({
       name: user.name,
       email: user.email,
-      mobile: user.mobile,
-      city: user.city,
-      isAdmin: user.isAdmin,
+      mobile: user.mobile || '',
+      city: user.city || '',
+      is_admin: user.is_admin,
       status: user.status,
       password: ''
     });
     setShowAddForm(true);
   };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = async (id: string) => {
     if (window.confirm('Are you sure you want to delete this user?')) {
-      setUsers(prev => prev.filter(user => user.id !== id));
+      try {
+        const { error } = await supabase
+          .from('users')
+          .delete()
+          .eq('id', id);
+
+        if (error) throw error;
+        
+        setUsers(prev => prev.filter(user => user.id !== id));
+        console.log('User deleted successfully');
+      } catch (error) {
+        console.error('Error deleting user:', error);
+        alert('Failed to delete user');
+      }
     }
   };
 
@@ -92,18 +117,19 @@ const UserManagement = () => {
     try {
       console.log(`Sending notification to user: ${userId}`);
       
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Show success message
+      const { data, error } = await supabase
+        .from('notifications')
+        .insert({
+          title: 'System Notification',
+          message: 'You have received a notification from the admin.',
+          type: 'info',
+          user_ids: [userId],
+          created_by: null
+        });
+
+      if (error) throw error;
+
       alert('Notification sent successfully!');
-      
-      // Update user's notification count or status
-      setUsers(prev => prev.map(user => 
-        user.id === userId 
-          ? { ...user, lastNotification: new Date().toISOString() }
-          : user
-      ));
       
     } catch (error) {
       console.error('Failed to send notification:', error);
@@ -111,19 +137,50 @@ const UserManagement = () => {
     }
   };
 
-  const handleSave = () => {
-    const newUser = {
-      id: editingId || Date.now().toString(),
-      ...formData
-    };
+  const handleSave = async () => {
+    try {
+      if (editingId) {
+        // Update existing user
+        const { error } = await supabase
+          .from('users')
+          .update({
+            name: formData.name,
+            email: formData.email,
+            mobile: formData.mobile || null,
+            city: formData.city || null,
+            is_admin: formData.is_admin,
+            status: formData.status,
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', editingId);
 
-    if (editingId) {
-      setUsers(prev => prev.map(user => user.id === editingId ? newUser : user));
-    } else {
-      setUsers(prev => [...prev, newUser]);
+        if (error) throw error;
+        
+        console.log('User updated successfully');
+      } else {
+        // Create new user
+        const { error } = await supabase
+          .from('users')
+          .insert({
+            name: formData.name,
+            email: formData.email,
+            mobile: formData.mobile || null,
+            city: formData.city || null,
+            is_admin: formData.is_admin,
+            status: formData.status
+          });
+
+        if (error) throw error;
+        
+        console.log('User created successfully');
+      }
+
+      await fetchUsers();
+      handleCancel();
+    } catch (error) {
+      console.error('Error saving user:', error);
+      alert('Failed to save user');
     }
-
-    handleCancel();
   };
 
   const handleCancel = () => {
@@ -134,11 +191,15 @@ const UserManagement = () => {
       email: '',
       mobile: '',
       city: '',
-      isAdmin: false,
+      is_admin: false,
       status: 'Active',
       password: ''
     });
   };
+
+  if (loading) {
+    return <div className="p-6">Loading users...</div>;
+  }
 
   return (
     <div className="space-y-6 p-6 bg-gradient-to-br from-blue-50 via-white to-green-50 min-h-screen">
@@ -195,8 +256,8 @@ const UserManagement = () => {
                     <td className="py-3 px-4 text-gray-700">{user.email}</td>
                     <td className="py-3 px-4 text-gray-700">{user.mobile}</td>
                     <td className="py-3 px-4">
-                      <Badge className={user.isAdmin ? 'bg-purple-100 text-purple-800' : 'bg-blue-100 text-blue-800'}>
-                        {user.isAdmin ? 'Admin' : 'User'}
+                      <Badge className={user.is_admin ? 'bg-purple-100 text-purple-800' : 'bg-blue-100 text-blue-800'}>
+                        {user.is_admin ? 'Admin' : 'User'}
                       </Badge>
                     </td>
                     <td className="py-3 px-4">
@@ -289,17 +350,6 @@ const UserManagement = () => {
                 />
               </div>
               <div>
-                <Label htmlFor="password" className="text-gray-700">Password</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  placeholder="Enter password"
-                  value={formData.password}
-                  onChange={(e) => setFormData({...formData, password: e.target.value})}
-                  className="border-gray-300 focus:border-blue-500"
-                />
-              </div>
-              <div>
                 <Label htmlFor="status" className="text-gray-700">Status</Label>
                 <select 
                   id="status" 
@@ -315,11 +365,11 @@ const UserManagement = () => {
               <div className="col-span-2">
                 <div className="flex items-center space-x-2">
                   <Checkbox 
-                    id="isAdmin"
-                    checked={formData.isAdmin}
-                    onCheckedChange={(checked) => setFormData({...formData, isAdmin: checked as boolean})}
+                    id="is_admin"
+                    checked={formData.is_admin}
+                    onCheckedChange={(checked) => setFormData({...formData, is_admin: checked as boolean})}
                   />
-                  <Label htmlFor="isAdmin" className="text-gray-700">Is Admin</Label>
+                  <Label htmlFor="is_admin" className="text-gray-700">Is Admin</Label>
                 </div>
               </div>
             </div>

@@ -92,6 +92,48 @@ export type Database = {
         }
         Relationships: []
       }
+      bonds: {
+        Row: {
+          bond_type: string | null
+          created_at: string
+          credit_rating: string | null
+          id: string
+          interest_rate: string | null
+          issuer: string | null
+          maturity_date: string | null
+          minimum_investment: string | null
+          name: string
+          status: string | null
+          updated_at: string
+        }
+        Insert: {
+          bond_type?: string | null
+          created_at?: string
+          credit_rating?: string | null
+          id?: string
+          interest_rate?: string | null
+          issuer?: string | null
+          maturity_date?: string | null
+          minimum_investment?: string | null
+          name: string
+          status?: string | null
+          updated_at?: string
+        }
+        Update: {
+          bond_type?: string | null
+          created_at?: string
+          credit_rating?: string | null
+          id?: string
+          interest_rate?: string | null
+          issuer?: string | null
+          maturity_date?: string | null
+          minimum_investment?: string | null
+          name?: string
+          status?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       brokers: {
         Row: {
           account_opening_fee: string | null
@@ -206,6 +248,36 @@ export type Database = {
         }
         Relationships: []
       }
+      chatbot_responses: {
+        Row: {
+          category: string | null
+          created_at: string
+          id: string
+          is_active: boolean | null
+          response_message: string
+          trigger_keywords: string
+          updated_at: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          response_message: string
+          trigger_keywords: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          response_message?: string
+          trigger_keywords?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       cities: {
         Row: {
           area: string | null
@@ -272,6 +344,39 @@ export type Database = {
         }
         Relationships: []
       }
+      content_pages: {
+        Row: {
+          content: string | null
+          created_at: string
+          id: string
+          is_published: boolean | null
+          meta_description: string | null
+          slug: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          content?: string | null
+          created_at?: string
+          id?: string
+          is_published?: boolean | null
+          meta_description?: string | null
+          slug: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          content?: string | null
+          created_at?: string
+          id?: string
+          is_published?: boolean | null
+          meta_description?: string | null
+          slug?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       country_codes: {
         Row: {
           country_code: string
@@ -334,6 +439,53 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      gmp_data: {
+        Row: {
+          created_at: string
+          current_gmp: number | null
+          expected_listing_price: number | null
+          id: string
+          ipo_id: string | null
+          ipo_name: string
+          lot_size: number | null
+          percentage_change: number | null
+          price_range: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          current_gmp?: number | null
+          expected_listing_price?: number | null
+          id?: string
+          ipo_id?: string | null
+          ipo_name: string
+          lot_size?: number | null
+          percentage_change?: number | null
+          price_range?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          current_gmp?: number | null
+          expected_listing_price?: number | null
+          id?: string
+          ipo_id?: string | null
+          ipo_name?: string
+          lot_size?: number | null
+          percentage_change?: number | null
+          price_range?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "gmp_data_ipo_id_fkey"
+            columns: ["ipo_id"]
+            isOneToOne: false
+            referencedRelation: "ipos"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       ipo_allotments: {
         Row: {
@@ -501,8 +653,12 @@ export type Database = {
           min_investment: string | null
           name: string
           open_date: string | null
+          parent_company: string | null
           price_range: string | null
           profit_per_lot: string | null
+          quota_categories: string[] | null
+          sector: string | null
+          shareholder_deadline: string | null
           shareholding_pattern: Json | null
           status: string
           subscription_details: Json | null
@@ -527,8 +683,12 @@ export type Database = {
           min_investment?: string | null
           name: string
           open_date?: string | null
+          parent_company?: string | null
           price_range?: string | null
           profit_per_lot?: string | null
+          quota_categories?: string[] | null
+          sector?: string | null
+          shareholder_deadline?: string | null
           shareholding_pattern?: Json | null
           status: string
           subscription_details?: Json | null
@@ -553,8 +713,12 @@ export type Database = {
           min_investment?: string | null
           name?: string
           open_date?: string | null
+          parent_company?: string | null
           price_range?: string | null
           profit_per_lot?: string | null
+          quota_categories?: string[] | null
+          sector?: string | null
+          shareholder_deadline?: string | null
           shareholding_pattern?: Json | null
           status?: string
           subscription_details?: Json | null
@@ -640,6 +804,7 @@ export type Database = {
           benchmark: string | null
           category: string | null
           close_date: string | null
+          contact_details: string | null
           created_at: string
           exit_load: string | null
           expense_ratio: string | null
@@ -652,8 +817,10 @@ export type Database = {
           name: string
           nav: string | null
           open_date: string | null
+          peer_comparison: string | null
           risk_level: string | null
           status: string
+          tax_implications: string | null
           type: string
           updated_at: string
         }
@@ -663,6 +830,7 @@ export type Database = {
           benchmark?: string | null
           category?: string | null
           close_date?: string | null
+          contact_details?: string | null
           created_at?: string
           exit_load?: string | null
           expense_ratio?: string | null
@@ -675,8 +843,10 @@ export type Database = {
           name: string
           nav?: string | null
           open_date?: string | null
+          peer_comparison?: string | null
           risk_level?: string | null
           status?: string
+          tax_implications?: string | null
           type?: string
           updated_at?: string
         }
@@ -686,6 +856,7 @@ export type Database = {
           benchmark?: string | null
           category?: string | null
           close_date?: string | null
+          contact_details?: string | null
           created_at?: string
           exit_load?: string | null
           expense_ratio?: string | null
@@ -698,8 +869,10 @@ export type Database = {
           name?: string
           nav?: string | null
           open_date?: string | null
+          peer_comparison?: string | null
           risk_level?: string | null
           status?: string
+          tax_implications?: string | null
           type?: string
           updated_at?: string
         }
@@ -1034,6 +1207,42 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      users: {
+        Row: {
+          city: string | null
+          created_at: string
+          email: string
+          id: string
+          is_admin: boolean | null
+          mobile: string | null
+          name: string
+          status: string | null
+          updated_at: string
+        }
+        Insert: {
+          city?: string | null
+          created_at?: string
+          email: string
+          id?: string
+          is_admin?: boolean | null
+          mobile?: string | null
+          name: string
+          status?: string | null
+          updated_at?: string
+        }
+        Update: {
+          city?: string | null
+          created_at?: string
+          email?: string
+          id?: string
+          is_admin?: boolean | null
+          mobile?: string | null
+          name?: string
+          status?: string | null
+          updated_at?: string
+        }
+        Relationships: []
       }
     }
     Views: {
